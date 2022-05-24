@@ -2,9 +2,6 @@
 * Copyright 2014-2021 JetBrains s.r.o and contributors. Use of this source code is governed by the Apache 2.0 license.
 */
 
-import org.jetbrains.kotlin.utils.addToStdlib.*
-import java.util.*
-
 plugins {
     kotlin("plugin.serialization") version "1.8.20"
     id("org.gradle.kotlin.kotlin-dsl") version "4.0.14"
