@@ -298,6 +298,7 @@ abstract class EngineStressSuite<TEngine : ApplicationEngine, TConfiguration : A
     }
 
     @Test
+    @Ignore
     fun testLongResponse() {
         createAndStartServer {
             get("/ll") {
