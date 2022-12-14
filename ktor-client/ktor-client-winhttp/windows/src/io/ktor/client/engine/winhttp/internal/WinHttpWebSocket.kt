@@ -284,7 +284,7 @@ internal class WinHttpWebSocket @OptIn(ExperimentalForeignApi::class) constructo
             NULL,
             0.convert()
         )
-        WinHttpCloseHandle(hWebSocket)
+        platform.winhttp.WinHttpCloseHandle(hWebSocket)
         connect.close()
     }
 
