@@ -34,6 +34,6 @@ public fun ReadablePacket.readByteBuffer(): ByteBuffer {
 
 public suspend fun ByteReadChannel.readByteBuffer(): ByteBuffer {
     if (isClosedForRead()) return EmptyByteBuffer
-    if (readablePacket.isEmpty) awaitWhile()
+    if (readablePacket.isEmpty) awaitBytes()
     return readablePacket.readByteBuffer()
 }

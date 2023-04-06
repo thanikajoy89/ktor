@@ -58,7 +58,7 @@ class ByteReadChannelExtensionsTest {
 
     @Test
     fun testReadPacket() = testSuspend {
-        val channel = GlobalScope.writer {
+        val channel = writer {
             writePacket {
                 writeByteArray(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
             }
@@ -89,42 +89,46 @@ class ByteReadChannelExtensionsTest {
 
     @Test
     fun testCopyToFromClosed() = testSuspend {
-        val channel = GlobalScope.writer {
+        val channel = writer {
             writePacket {
                 writeByteArray(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
             }
         }
 
-        val out = ConflatedByteChannel()
-        val result = async {
-            assertArrayEquals(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), out.toByteArray())
+        val result = CompletableDeferred<ByteArray>()
+        val out = reader {
+            consume {
+                result.complete(it.toByteArray())
+            }
         }
 
         channel.copyAndClose(out)
-        result.await()
+        assertArrayEquals(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), result.await())
     }
 
     @Test
     fun testCopyToFromClosedWithLimit() = testSuspend {
-        val channel = GlobalScope.writer {
+        val channel = writer {
             writePacket {
                 writeByteArray(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
             }
         }
 
-        val out = ConflatedByteChannel()
-        val result = async {
-            assertArrayEquals(byteArrayOf(1, 2, 3, 4, 5), out.toByteArray())
+        val result = CompletableDeferred<ByteArray>()
+        val out = reader {
+            consume {
+                result.complete(it.toByteArray())
+            }
         }
 
         channel.copyAndClose(out, limit = 5)
-        result.await()
+        assertArrayEquals(byteArrayOf(1, 2, 3, 4, 5), result.await())
     }
 
     @Test
     fun testCopyTo() = testSuspend {
         val latch = Job()
-        val channel = GlobalScope.writer {
+        val channel = writer {
             writePacket {
                 writeByteArray(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
             }
@@ -134,12 +138,17 @@ class ByteReadChannelExtensionsTest {
             }
         }
 
-        val out = ConflatedByteChannel()
-        val result = async {
-            assertArrayEquals(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), out.toByteArray())
+        val testResult = CompletableDeferred<ByteArray>()
+        val out = reader {
+            val result = Packet()
+            consumeEach {
+                result.writePacket(it)
+            }
+
+            testResult.complete(result.toByteArray())
         }
         channel.copyAndClose(out, limit = 10)
-        result.await()
+        assertArrayEquals(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), testResult.await())
         latch.complete()
 
         assertEquals(42, channel.readByte())

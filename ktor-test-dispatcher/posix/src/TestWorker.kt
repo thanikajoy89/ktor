@@ -6,6 +6,7 @@ package io.ktor.test.dispatcher
 import io.ktor.util.*
 import platform.posix.*
 import kotlin.native.concurrent.*
+import kotlin.native.concurrent.FutureState.*
 import kotlin.system.*
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -23,12 +24,12 @@ internal fun executeInWorker(timeout: Long, block: () -> Unit) {
     }
 
     val endTime = getTimeMillis() + timeout
-    while (result.state == FutureState.SCHEDULED && endTime > getTimeMillis()) {
+    while (result.state == SCHEDULED && endTime > getTimeMillis()) {
         usleep(SLEEP_TIME)
     }
 
     when (result.state) {
-        FutureState.SCHEDULED -> {
+        SCHEDULED -> {
             ThreadInfo.printAllStackTraces()
             restartTestWorker()
             error("Test is timed out")

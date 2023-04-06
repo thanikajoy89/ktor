@@ -13,7 +13,7 @@ internal object EmptyByteReadChannel : ByteReadChannel {
 
     override fun isClosedForRead(): Boolean = true
 
-    override suspend fun awaitWhile(predicate: () -> Boolean): Boolean = false
+    override suspend fun awaitBytesWhile(predicate: () -> Boolean) {}
 
     override fun cancel(cause: CancellationException?) {}
 }

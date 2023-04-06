@@ -30,7 +30,11 @@ public interface ByteReadChannel {
      * @return `true` if there are bytes available for reading or `false` if EOF reached.
      * @throws closedCause if channel is closed with an exception.
      */
-    public suspend fun awaitWhile(predicate: () -> Boolean = { readablePacket.availableForRead > 0 })
+    public suspend fun awaitBytesWhile(predicate: () -> Boolean)
+
+    public suspend fun awaitBytes() {
+        awaitBytesWhile { isEmpty }
+    }
 
     /**
      * Close channel with optional [cause] cancellation. Unlike [ByteWriteChannel.close] that could close channel

@@ -18,7 +18,7 @@ public suspend fun ByteReadChannel.copyTo(channel: WritableByteChannel, limit: L
 
     var copied = 0L
     while (copied < limit) {
-        if (availableForRead == 0) awaitWhile()
+        if (availableForRead == 0) awaitBytes()
         val size = minOf(limit - copied, availableForRead.toLong()).toInt()
         val packet = readPacket(size)
         while (packet.isNotEmpty) {

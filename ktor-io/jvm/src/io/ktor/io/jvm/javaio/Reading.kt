@@ -32,17 +32,14 @@ public fun InputStream.toByteReadChannel(): ByteReadChannel = object : ByteReadC
         return closed && readablePacket.isEmpty
     }
 
-    override suspend fun awaitWhile(predicate: () -> Boolean): Boolean {
+    override suspend fun awaitBytesWhile(predicate: () -> Boolean) {
         closedCause?.let { throw it }
-        if (closed && readablePacket.isEmpty) return false
 
         withContext(Dispatchers.IO) {
-            while (!closed && !predicate()) {
+            while (!isClosedForRead() && predicate()) {
                 fill()
             }
         }
-
-        return !closed || readablePacket.isNotEmpty
     }
 
     private fun fill() {

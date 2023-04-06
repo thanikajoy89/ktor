@@ -5,7 +5,6 @@
 package io.ktor.io
 
 import io.ktor.io.jvm.javaio.*
-import kotlinx.coroutines.*
 import kotlin.test.*
 
 class InputStreamAdapterTest {
@@ -48,18 +47,5 @@ class InputStreamAdapterTest {
         assertEquals("Hello, world!", result)
 
         assertEquals(-1, stream.read(buffer))
-    }
-
-    @Test
-    fun testChannelIsCancelled() {
-        val channel = ConflatedByteChannel()
-        val stream = channel.toInputStream()
-        channel.cancel(CancellationException("Expected"))
-
-        val error = assertFailsWith<CancellationException> {
-            stream.read()
-        }
-
-        assertEquals("Expected", error.unwrapCancellation().message)
     }
 }

@@ -41,15 +41,10 @@ internal class FileReadChannel(
         return closed && readablePacket.isEmpty
     }
 
-    override suspend fun awaitWhile(predicate: () -> Boolean): Boolean {
-        closedCause?.let { throw it }
-        if (closed) return readablePacket.isNotEmpty
-
-        while (!closed && !predicate()) {
+    override suspend fun awaitBytesWhile(predicate: () -> Boolean) {
+        while (!isClosedForRead() && predicate()) {
             fill()
         }
-
-        return !closed || readablePacket.isNotEmpty
     }
 
     private suspend fun fill() = withContext(Dispatchers.IO) {

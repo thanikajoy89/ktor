@@ -36,7 +36,7 @@ public fun ByteReadChannel(packet: Packet): ByteReadChannel = object : ByteReadC
         return packet.isEmpty
     }
 
-    override suspend fun awaitWhile(predicate: () -> Boolean) {
+    override suspend fun awaitBytesWhile(predicate: () -> Boolean) {
         closedCause?.let { throw it }
     }
 

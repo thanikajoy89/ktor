@@ -21,9 +21,9 @@ public val ByteReadChannel.isNotEmpty: Boolean get() = availableForRead != 0
  */
 public suspend fun ByteReadChannel.readUntil(buffer: ReadableBuffer): Packet? {
     var boundaryStart: Int = -1
-    awaitWhile {
+    awaitBytesWhile {
         boundaryStart = readablePacket.indexOf(buffer)
-        boundaryStart > 0
+        boundaryStart < 0
     }
 
     if (boundaryStart < 0) return null
@@ -37,7 +37,7 @@ public suspend fun ByteReadChannel.readUntil(buffer: ReadableBuffer): Packet? {
  * Discards exactly [n] bytes or fails if not enough bytes in the channel
  */
 public suspend inline fun ByteReadChannel.discardExact(count: Long) {
-    awaitWhile { availableForRead >= count }
+    awaitBytesWhile { availableForRead < count }
     discard(count)
 }
 
@@ -53,7 +53,7 @@ public suspend fun ByteReadChannel.copyTo(dst: ByteWriteChannel, limit: Long = L
 
     var remaining = limit
     while (remaining > 0 && !isClosedForRead()) {
-        if (isEmpty) awaitWhile()
+        if (isEmpty) awaitBytes()
 
         if (remaining >= readablePacket.availableForRead) {
             remaining -= readablePacket.availableForRead
@@ -84,7 +84,7 @@ public suspend fun ByteReadChannel.copyAndClose(dst: ByteWriteChannel, limit: Lo
 
 public suspend fun ByteReadChannel.readBuffer(): ReadableBuffer {
     if (isClosedForRead()) return ReadableBuffer.Empty
-    if (isEmpty) awaitWhile()
+    if (isEmpty) awaitBytes()
     return readablePacket.readBuffer()
 }
 
@@ -93,7 +93,7 @@ public suspend fun ByteReadChannel.readBuffer(): ReadableBuffer {
  * and not enough bytes.
  */
 public suspend fun ByteReadChannel.readLong(): Long {
-    awaitWhile { availableForRead >= 8 }
+    awaitBytesWhile { availableForRead < 8 }
     return readablePacket.readLong()
 }
 
@@ -102,7 +102,7 @@ public suspend fun ByteReadChannel.readLong(): Long {
  * and not enough bytes.
  */
 public suspend fun ByteReadChannel.readInt(): Int {
-    awaitWhile { availableForRead >= 4 }
+    awaitBytesWhile { availableForRead < 4 }
     return readablePacket.readInt()
 }
 
@@ -111,7 +111,7 @@ public suspend fun ByteReadChannel.readInt(): Int {
  * and not enough bytes.
  */
 public suspend fun ByteReadChannel.readShort(): Short {
-    awaitWhile { availableForRead >= 2 }
+    awaitBytesWhile { availableForRead < 2 }
     return readablePacket.readShort()
 }
 
@@ -120,7 +120,7 @@ public suspend fun ByteReadChannel.readShort(): Short {
  * and not enough bytes.
  */
 public suspend fun ByteReadChannel.readByte(): Byte {
-    awaitWhile()
+    awaitBytes()
     return readablePacket.readByte()
 }
 
@@ -133,7 +133,7 @@ public suspend fun ByteReadChannel.readByteArray(size: Int): ByteArray {
     require(size >= 0)
     if (size == 0) return ByteArray(0)
 
-    awaitWhile { availableForRead >= size }
+    awaitBytesWhile { availableForRead < size }
     if (availableForRead < size) throw EOFException("Not enough bytes available: $size, available: $availableForRead")
     return readablePacket.readByteArray(size)
 }
@@ -149,7 +149,7 @@ public suspend fun ByteReadChannel.readBoolean(): Boolean = readByte().toInt() !
  * and not enough bytes.
  */
 public suspend fun ByteReadChannel.readDouble(): Double {
-    awaitWhile { availableForRead >= 8 }
+    awaitBytesWhile { availableForRead < 8 }
     return Double.fromBits(readablePacket.readLong())
 }
 
@@ -168,7 +168,7 @@ public fun ByteReadChannel.readFloat(): Float {
  */
 public suspend fun ByteReadChannel.readPacket(size: Int): Packet {
     if (availableForRead < size) {
-        awaitWhile { availableForRead >= size }
+        awaitBytesWhile { availableForRead < size }
     }
 
     check(availableForRead >= size)
@@ -196,7 +196,7 @@ public suspend fun ByteReadChannel.readPacket(size: Int): Packet {
 public suspend fun ByteReadChannel.readRemaining(limit: Long = Long.MAX_VALUE): Packet = buildPacket {
     var remaining = limit
     while (remaining > 0 && !isClosedForRead()) {
-        if (isEmpty) awaitWhile()
+        if (isEmpty) awaitBytes()
         val packet = if (remaining >= readablePacket.availableForRead) {
             readablePacket
         } else {
@@ -281,14 +281,7 @@ public inline fun ByteWriteChannel.use(block: ByteWriteChannel.() -> Unit) {
  * Cancel of one channel in split(input or both outputs) cancels other channels.
  */
 public fun ByteReadChannel.split(coroutineScope: CoroutineScope): Pair<ByteReadChannel, ByteReadChannel> {
-    val first = ConflatedByteChannel()
-    val second = ConflatedByteChannel()
-
-    coroutineScope.writer {
-        copyToBoth(first, second)
-    }
-
-    return first to second
+    TODO()
 }
 
 /**
@@ -298,7 +291,7 @@ public fun ByteReadChannel.split(coroutineScope: CoroutineScope): Pair<ByteReadC
 public suspend fun ByteReadChannel.copyToBoth(first: ByteWriteChannel, second: ByteWriteChannel) {
     try {
         while (!isClosedForRead()) {
-            if (isEmpty) awaitWhile()
+            if (isEmpty) awaitBytes()
             val packet = readablePacket
             first.writePacket(packet.clone())
             first.flush()

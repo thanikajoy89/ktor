@@ -18,7 +18,7 @@ public suspend fun <T> ByteReadChannel.consume(block: suspend ByteReadChannelCon
 
     try {
         while (!isClosedForRead()) {
-            awaitWhile()
+            awaitBytes()
             onFlushBlock(readablePacket)
 
             if (!readablePacket.isEmpty) {

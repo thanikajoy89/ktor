@@ -13,37 +13,34 @@ class OutputStreamAdapterTest {
     fun testWriteMessage() = runBlocking {
         val message = "Hello, world!"
 
-        val channel = ConflatedByteChannel()
-        GlobalScope.launch {
-            channel.toOutputStream().writer().use {
-                it.write(message)
+        val result = CompletableDeferred<String>()
+        reader {
+            consume {
+                result.complete(it.readString())
             }
+        }.toOutputStream().writer().use {
+            it.write(message)
         }
 
-        assertEquals(message, channel.readString())
+        assertEquals(message, result.await())
     }
 
     @Test
     fun testFlush(): Unit = runBlocking {
-        val channel = ConflatedByteChannel()
-        val stream = channel.toOutputStream()
-
-        val result = async {
-            channel.readByte()
-        }
-
-        stream.write(42)
-        assertTrue(result.isActive)
-        stream.flush()
-
-        assertEquals(42, result.await())
-
-        async {
-            assertFailsWith<EOFException> {
-                channel.readByte()
+        val first = CompletableDeferred<Int>()
+        val channel = reader {
+            consume {
+                it.readByte()
+                first.complete(42)
             }
         }
 
+        val stream = channel.toOutputStream()
+        stream.write(42)
+        assertTrue(!first.isCompleted)
+        stream.flush()
+
+        assertEquals(42, first.await())
         stream.close()
     }
 }

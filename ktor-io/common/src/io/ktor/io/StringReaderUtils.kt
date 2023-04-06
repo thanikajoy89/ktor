@@ -32,7 +32,7 @@ public suspend fun StringReader.readLineTo(out: Appendable, limit: Long = Long.M
     var remaining = limit
     var newLineFound = false
     var lastIsCaret = false
-    while (!newLineFound && awaitWhile()) {
+    while (!newLineFound && !isClosedForRead()) {
         readStringChunk { chunk, startIndex ->
             if (lastIsCaret) {
                 lastIsCaret = false

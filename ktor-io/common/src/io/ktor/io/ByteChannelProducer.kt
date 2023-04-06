@@ -40,7 +40,7 @@ public fun CoroutineScope.writer(
         return readablePacket.isEmpty && data.isClosedForReceive
     }
 
-    override suspend fun awaitWhile(predicate: () -> Boolean) {
+    override suspend fun awaitBytesWhile(predicate: () -> Boolean) {
         try {
             while (predicate()) {
                 val result = data.receiveCatching()

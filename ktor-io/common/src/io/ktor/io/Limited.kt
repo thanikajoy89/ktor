@@ -19,15 +19,16 @@ public fun ByteReadChannel.limited(length: Long): ByteReadChannel = object : Byt
         return readablePacket.isEmpty && remaining <= 0
     }
 
-    override suspend fun awaitWhile(predicate: () -> Boolean): Boolean {
+    override suspend fun awaitBytesWhile(predicate: () -> Boolean) {
+        val source = this@limited
         try {
-            while (!predicate() && remaining > 0) {
-                if (this@limited.readablePacket.isEmpty) this@limited.awaitWhile()
-                if (remaining > this@limited.readablePacket.availableForRead) {
-                    remaining -= this@limited.readablePacket.availableForRead
-                    readablePacket.writePacket(this@limited.readablePacket)
+            while (!source.isClosedForRead() && predicate() && remaining > 0) {
+                if (source.isEmpty) source.awaitBytes()
+                if (remaining > source.availableForRead) {
+                    remaining -= source.availableForRead
+                    readablePacket.writePacket(source.readablePacket)
                 } else {
-                    val packet = this@limited.readPacket(remaining.toInt())
+                    val packet = source.readPacket(remaining.toInt())
                     remaining = 0
                     readablePacket.writePacket(packet)
                 }
@@ -36,8 +37,6 @@ public fun ByteReadChannel.limited(length: Long): ByteReadChannel = object : Byt
             closedCause = cause
             throw cause
         }
-
-        return readablePacket.isNotEmpty
     }
 
     override fun cancel(cause: CancellationException?) {

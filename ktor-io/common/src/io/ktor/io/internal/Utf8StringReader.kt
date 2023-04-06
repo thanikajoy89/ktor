@@ -29,9 +29,13 @@ internal class Utf8StringReader(
     var bytesInPacket = readablePacket.availableForRead
 
     override suspend fun readStringChunk(block: (chunk: String, startIndex: Int) -> Int) {
-        if (chunkIsEmpty() && !awaitWhile()) return
+        if (chunkIsEmpty() && isClosedForRead()) return
 
         if (chunkIsEmpty() || cacheIsInvalid()) {
+            if (isEmpty) {
+                awaitBytes()
+            }
+
             chunk = readablePacket.clone().readString()
             chunkStart = 0
             bytesInPacket = readablePacket.availableForRead
@@ -44,10 +48,10 @@ internal class Utf8StringReader(
         chunkStart += consumed
     }
 
-    override suspend fun awaitWhile(predicate: () -> Boolean): Boolean {
+    override suspend fun awaitBytesWhile(predicate: () -> Boolean) {
         chunk = ""
         chunkStart = 0
-        return input.awaitWhile(predicate)
+        input.awaitBytesWhile(predicate)
     }
 
     override fun cancel(cause: CancellationException?) {

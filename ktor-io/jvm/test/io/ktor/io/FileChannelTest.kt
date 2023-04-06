@@ -34,7 +34,7 @@ class FileChannelTest {
     @Test
     fun testReadEmptyFile() = runBlocking {
         val channel = temp.readChannel()
-        channel.awaitWhile()
+        channel.awaitBytes()
         assertTrue(channel.isClosedForRead())
     }
 
