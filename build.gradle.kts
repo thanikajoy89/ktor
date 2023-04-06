@@ -2,6 +2,7 @@
  * Copyright 2014-2020 JetBrains s.r.o and contributors. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import kotlinx.kover.api.*
 import org.jetbrains.dokka.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.targets.js.*
@@ -51,6 +52,9 @@ buildscript {
         gradlePluginPortal()
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     }
+    dependencies {
+        classpath("org.jetbrains.kotlinx:kover:0.6.1")
+    }
 }
 
 val releaseVersion: String? by extra
@@ -85,7 +89,7 @@ val disabledExplicitApiModeProjects = listOf(
     "ktor-server-test-host",
     "ktor-server-test-suites",
     "ktor-server-tests",
-    "ktor-client-content-negotiation-tests",
+    "ktor-client-content-negotiation-tests"
 )
 
 apply(from = "gradle/compatibility.gradle")
@@ -116,6 +120,7 @@ allprojects {
 
     apply(plugin = "kotlin-multiplatform")
     apply(plugin = "kotlinx-atomicfu")
+    apply(plugin = "kover")
 
     configureTargets()
 
@@ -169,6 +174,12 @@ fun configureDokka() {
 
     rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
         rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().ignoreScripts = false
+    }
+
+    val jvmTest by tasks.getting(Test::class) {
+        extensions.configure<KoverTaskExtension>() {
+            enabled = true
+        }
     }
 }
 
