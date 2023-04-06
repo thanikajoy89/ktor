@@ -196,7 +196,8 @@ public final class io/ktor/io/ByteOrder_jvmKt {
 
 public abstract interface class io/ktor/io/ByteReadChannel {
 	public static final field Companion Lio/ktor/io/ByteReadChannel$Companion;
-	public abstract fun awaitBytes (Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun awaitBytes (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun awaitBytesWhile (Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun cancel (Ljava/util/concurrent/CancellationException;)V
 	public abstract fun getClosedCause ()Ljava/lang/Throwable;
 	public abstract fun getReadablePacket ()Lio/ktor/io/ReadablePacket;
@@ -208,7 +209,7 @@ public final class io/ktor/io/ByteReadChannel$Companion {
 }
 
 public final class io/ktor/io/ByteReadChannel$DefaultImpls {
-	public static synthetic fun awaitBytes$default (Lio/ktor/io/ByteReadChannel;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static fun awaitBytes (Lio/ktor/io/ByteReadChannel;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun cancel$default (Lio/ktor/io/ByteReadChannel;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)V
 }
 
@@ -240,6 +241,8 @@ public final class io/ktor/io/ByteReadChannelOperationsKt {
 	public static synthetic fun discard$default (Lio/ktor/io/ByteReadChannel;JILjava/lang/Object;)J
 	public static final fun discardExact (Lio/ktor/io/ByteReadChannel;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun getAvailableForRead (Lio/ktor/io/ByteReadChannel;)I
+	public static final fun isEmpty (Lio/ktor/io/ByteReadChannel;)Z
+	public static final fun isNotEmpty (Lio/ktor/io/ByteReadChannel;)Z
 	public static final fun readBoolean (Lio/ktor/io/ByteReadChannel;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readBuffer (Lio/ktor/io/ByteReadChannel;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readByte (Lio/ktor/io/ByteReadChannel;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -379,21 +382,6 @@ public final class io/ktor/io/CloseableKt {
 
 public final class io/ktor/io/ClosedWriteChannelException : java/util/concurrent/CancellationException {
 	public fun <init> (Ljava/lang/String;)V
-}
-
-public final class io/ktor/io/ConflatedByteChannel : io/ktor/io/ByteReadChannel, io/ktor/io/ByteWriteChannel {
-	public fun <init> ()V
-	public fun awaitBytes (Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun cancel (Ljava/util/concurrent/CancellationException;)V
-	public fun close (Ljava/lang/Throwable;)V
-	public fun flush (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun flushAndClose (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun getClosedCause ()Ljava/lang/Throwable;
-	public fun getReadablePacket ()Lio/ktor/io/Packet;
-	public synthetic fun getReadablePacket ()Lio/ktor/io/ReadablePacket;
-	public fun getWritablePacket ()Lio/ktor/io/Packet;
-	public fun isClosedForRead ()Z
-	public fun isClosedForWrite ()Z
 }
 
 public final class io/ktor/io/ExceptionUtils_jvmKt {
@@ -556,6 +544,10 @@ public abstract interface class io/ktor/io/StringReader : io/ktor/io/ByteReadCha
 	public abstract fun readStringChunk (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class io/ktor/io/StringReader$DefaultImpls {
+	public static fun awaitBytes (Lio/ktor/io/StringReader;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public final class io/ktor/io/StringReaderKt {
 	public static final fun stringReader (Lio/ktor/io/ByteReadChannel;Ljava/nio/charset/Charset;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static synthetic fun stringReader$default (Lio/ktor/io/ByteReadChannel;Ljava/nio/charset/Charset;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
@@ -608,7 +600,8 @@ public final class io/ktor/io/charsets/UTFKt {
 
 public final class io/ktor/io/internal/Utf8StringReader : io/ktor/io/StringReader {
 	public fun <init> (Lio/ktor/io/ByteReadChannel;)V
-	public fun awaitBytes (Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun awaitBytes (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun awaitBytesWhile (Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun cancel (Ljava/util/concurrent/CancellationException;)V
 	public final fun getBytesInPacket ()I
 	public fun getCharset ()Ljava/nio/charset/Charset;
@@ -737,6 +730,28 @@ public abstract class io/ktor/io/pool/SingleInstancePool : io/ktor/io/pool/Objec
 	public final fun getCapacity ()I
 	protected abstract fun produceInstance ()Ljava/lang/Object;
 	public final fun recycle (Ljava/lang/Object;)V
+}
+
+public final class io/ktor/utils/io/IOCompatibilityKt {
+	public static final fun readRemaining (Lio/ktor/io/ByteReadChannel;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun readRemaining$default (Lio/ktor/io/ByteReadChannel;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/ktor/utils/io/charsets/CharsetCompatibilityKt {
+	public static final fun String ([BIILjava/nio/charset/Charset;)Ljava/lang/String;
+	public static synthetic fun String$default ([BIILjava/nio/charset/Charset;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun toByteArray (Ljava/lang/String;Ljava/nio/charset/Charset;)[B
+}
+
+public final class io/ktor/utils/io/core/CoreCompatibilityKt {
+	public static final fun buildPacket (Lkotlin/jvm/functions/Function1;)Lio/ktor/io/Packet;
+	public static final fun getRemaining (Lio/ktor/io/Packet;)I
+	public static final fun getSize (Lio/ktor/io/Packet;)I
+	public static final fun readAvailable (Lio/ktor/io/ReadablePacket;[BII)I
+	public static synthetic fun readAvailable$default (Lio/ktor/io/ReadablePacket;[BIIILjava/lang/Object;)I
+	public static final fun readBytes (Lio/ktor/io/ReadablePacket;)[B
+	public static final fun readBytes (Lio/ktor/io/ReadablePacket;I)[B
+	public static final fun writeText (Lio/ktor/io/Packet;Ljava/lang/String;)V
 }
 
 public final class io/ktor/utils/io/jvm/nio/WritingKt {

@@ -10,6 +10,11 @@ import io.ktor.utils.io.errors.*
  * An exception thrown when an IO error occurred during reading or writing to/from the underlying channel.
  * The typical error is "connection reset" and so on.
  */
+@Deprecated(
+    "Use IOException instead",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith("IOException", "io.ktor.io")
+)
 public open class ChannelIOException(message: String, exception: Throwable) : IOException(message, exception)
 
 /**
