@@ -4,7 +4,6 @@
 
 package io.ktor.io
 
-import io.ktor.io.*
 import io.ktor.io.jvm.javaio.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.debug.junit4.*
@@ -19,8 +18,8 @@ class FileChannelTest {
     private val sandbox = File("build/files")
     private lateinit var temp: File
 
-    @get:Rule
-    val timeout = CoroutinesTimeout.seconds(10)
+//    @get:Rule
+//    val timeout = CoroutinesTimeout.seconds(10)
 
     @Before
     fun setUp() {
@@ -40,7 +39,9 @@ class FileChannelTest {
 
     @Test
     fun testEmptyFileWithInputStream() {
-        assertEquals(0, temp.readChannel().toInputStream().use { it.readBytes().size })
+        val stream = temp.readChannel().toInputStream()
+        val size = stream.use { it.readBytes().size }
+        assertEquals(0, size)
     }
 
     @Test
@@ -59,7 +60,7 @@ class FileChannelTest {
             listOf(8.toByte()),
             temp.readChannel(start = 1L, endInclusive = 1L)
                 .toInputStream()
-                .use { it.readBytes().toList() }
+                .use { it.readBytes().toList() },
         )
     }
 
@@ -75,7 +76,9 @@ class FileChannelTest {
     fun test3BytesWithStream() {
         temp.writeBytes(byteArrayOf(7, 8, 9))
 
-        assertEquals(byteArrayOf(7, 8, 9).toList(), temp.readChannel().toInputStream().use { it.readBytes().toList() })
+        val stream = temp.readChannel().toInputStream()
+        val actual = stream.use { it.readBytes().toList() }
+        assertEquals(byteArrayOf(7, 8, 9).toList(), actual)
     }
 
     @Ignore

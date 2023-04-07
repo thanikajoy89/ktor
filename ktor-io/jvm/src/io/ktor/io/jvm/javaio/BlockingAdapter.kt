@@ -133,7 +133,7 @@ internal abstract class BlockingAdapter(val parent: Job? = null) {
                     myInputStream.read()
                 }
                 ```
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 

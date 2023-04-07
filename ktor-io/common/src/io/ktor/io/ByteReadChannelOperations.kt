@@ -6,6 +6,7 @@ package io.ktor.io
 
 import io.ktor.io.charsets.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
 import kotlin.contracts.*
 
 public val ByteReadChannel.availableForRead: Int get() = readablePacket.availableForRead
@@ -196,7 +197,7 @@ public suspend fun ByteReadChannel.readPacket(size: Int): Packet {
 public suspend fun ByteReadChannel.readRemaining(limit: Long = Long.MAX_VALUE): Packet = buildPacket {
     var remaining = limit
     while (remaining > 0 && !isClosedForRead()) {
-        if (isEmpty) awaitBytes()
+        if (this@readRemaining.isEmpty) awaitBytes()
         val packet = if (remaining >= readablePacket.availableForRead) {
             readablePacket
         } else {
@@ -223,7 +224,7 @@ public suspend fun ByteReadChannel.readRemaining(limit: Long = Long.MAX_VALUE): 
 @Deprecated(
     "Read line is deprecated",
     replaceWith = ReplaceWith("this.stringReader().use { it.readLineTo(out, limit) }"),
-    level = DeprecationLevel.ERROR
+    level = DeprecationLevel.ERROR,
 )
 public suspend fun <A : Appendable> ByteReadChannel.readUTF8LineTo(out: A, limit: Long = Long.MAX_VALUE): Boolean {
     TODO()
@@ -232,7 +233,7 @@ public suspend fun <A : Appendable> ByteReadChannel.readUTF8LineTo(out: A, limit
 @Deprecated(
     "Read line is deprecated",
     replaceWith = ReplaceWith("this.stringReader(charset).use { it.readLine(limit) }"),
-    level = DeprecationLevel.ERROR
+    level = DeprecationLevel.ERROR,
 )
 public suspend fun ByteReadChannel.readLine(charset: Charset = Charsets.UTF_8, limit: Long = Long.MAX_VALUE): String? {
     TODO("Unsupported charset $charset")
@@ -281,7 +282,35 @@ public inline fun ByteWriteChannel.use(block: ByteWriteChannel.() -> Unit) {
  * Cancel of one channel in split(input or both outputs) cancels other channels.
  */
 public fun ByteReadChannel.split(coroutineScope: CoroutineScope): Pair<ByteReadChannel, ByteReadChannel> {
-    TODO()
+    val firstChannel = Channel<Packet>()
+    val first = coroutineScope.writer {
+        for (packet in firstChannel) {
+            writePacket(packet)
+        }
+    }
+
+    val secondChannel = Channel<Packet>()
+    val second = coroutineScope.writer {
+        for (packet in secondChannel) {
+            writePacket(packet)
+        }
+    }
+
+    coroutineScope.launch {
+        consume {
+            onFlush {
+                firstChannel.send(readablePacket.clone())
+                secondChannel.send(readablePacket.clone())
+                readablePacket.close()
+            }
+            onClose {
+                firstChannel.close()
+                secondChannel.close()
+            }
+        }
+    }
+
+    return first to second
 }
 
 /**
