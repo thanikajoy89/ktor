@@ -13,7 +13,7 @@ public val Buffer.availableForWrite: Int get() = capacity - writeIndex
  *
  * @return index inside current buffer or -1 if not found.
  */
-internal fun ReadableBuffer.indexOfPrefix(other: ReadableBuffer): Int {
+public fun ReadableBuffer.indexOfPrefix(other: ReadableBuffer): Int {
     for (index in readIndex until writeIndex) {
         var matchedLength = 0
         while (matchedLength < other.availableForRead && index + matchedLength < writeIndex) {
@@ -34,7 +34,7 @@ internal fun ReadableBuffer.indexOfPrefix(other: ReadableBuffer): Int {
 /**
  * Find common prefix length between this buffer and [other] buffer.
  */
-internal fun ReadableBuffer.commonPrefixLength(other: ReadableBuffer, otherOffset: Int = 0): Int {
+public fun ReadableBuffer.commonPrefixLength(other: ReadableBuffer, otherOffset: Int = 0): Int {
     val minSize = minOf(availableForRead, other.availableForRead - otherOffset)
     var index = 0
     while (index < minSize) {
@@ -43,6 +43,26 @@ internal fun ReadableBuffer.commonPrefixLength(other: ReadableBuffer, otherOffse
     }
     return index
 }
+
+/**
+ * Writes [Byte] at specific [index].
+ *
+ * The operation doesn't modify [readIndex] or [writeIndex].
+ *
+ * @throws IndexOutOfBoundsException if [index + 1] is greater than [capacity].
+ */
+public operator fun Buffer.set(index: Int, byte: Byte) {
+    setByteAt(index, byte)
+}
+
+/**
+ * Reads [Byte] at specific [index].
+ *
+ * The operation doesn't modify [readIndex] or [writeIndex].
+ *
+ * @throws IndexOutOfBoundsException if [index + 1] is greater [capacity].
+ */
+public operator fun Buffer.get(index: Int): Byte = getByteAt(index)
 
 /**
  * Check if the Buffer has space to write [count] bytes.

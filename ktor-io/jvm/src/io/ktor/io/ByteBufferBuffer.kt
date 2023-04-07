@@ -9,7 +9,7 @@ import java.nio.*
 import kotlin.text.Charsets
 
 public class ByteBufferBuffer(
-    override val state: ByteBuffer
+    override val state: ByteBuffer,
 ) : Buffer, WithByteBuffer {
     override var writeIndex: Int
         get() = state.limit()
@@ -64,7 +64,26 @@ public class ByteBufferBuffer(
     }
 
     override fun clone(): Buffer {
-        return ByteBufferBuffer(state.duplicate())
+        val resultState = if (!state.isDirect) {
+            ByteBuffer.allocate(state.capacity())
+        } else {
+            ByteBuffer.allocateDirect(state.capacity())
+        }
+
+        val position = state.position()
+        val limit = state.limit()
+
+        state.position(0)
+        state.limit(state.capacity())
+        resultState.put(state)
+
+        state.position(position)
+        state.limit(limit)
+
+        resultState.position(position)
+        resultState.limit(limit)
+
+        return ByteBufferBuffer(resultState)
     }
 
     override var readIndex: Int
@@ -84,6 +103,7 @@ public class ByteBufferBuffer(
     }
 
     override fun readString(charset: Charset): String {
+        if (isEmpty) throw IndexOutOfBoundsException("No bytes available for read")
         if (charset != Charsets.UTF_8) {
             TODO("Chraset $charset is not supported")
         }

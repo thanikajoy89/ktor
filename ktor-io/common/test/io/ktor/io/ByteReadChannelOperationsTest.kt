@@ -19,7 +19,7 @@ class ByteReadChannelExtensionsTest {
                 append("Accept-Charset: UTF-8\n")
                 append("Accept: */*\n")
                 append("User-Agent: Ktor client\n")
-            }
+            },
         )
 
         channel.stringReader { reader ->
@@ -42,7 +42,7 @@ class ByteReadChannelExtensionsTest {
                 append("Accept-Charset: UTF-8\r\n")
                 append("Accept: */*\r\n")
                 append("User-Agent: Ktor client\r\n")
-            }
+            },
         )
 
         channel.stringReader { reader ->

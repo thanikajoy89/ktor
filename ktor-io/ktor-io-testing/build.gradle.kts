@@ -6,9 +6,13 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(kotlin("test"))
-
-                implementation(project(":ktor-io"))
+                api(kotlin("test"))
+                api(project(":ktor-io"))
+            }
+        }
+        jvmMain {
+            dependencies {
+                api(kotlin("test-junit"))
             }
         }
     }
