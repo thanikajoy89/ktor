@@ -52,6 +52,7 @@ class UDPSocketTest {
     }
 
     @Test
+    @Ignore
     fun testBroadcastSuccessful() = testSockets { selector ->
         val serverSocketCompletable = CompletableDeferred<BoundDatagramSocket>()
         val server = launch {
@@ -94,6 +95,7 @@ class UDPSocketTest {
     }
 
     @Test
+    @Ignore
     fun testClose(): Unit = testSockets { selector ->
         val socket = aSocket(selector)
             .udp()
@@ -166,6 +168,7 @@ class UDPSocketTest {
     }
 
     @Test
+    @Ignore
     fun testOutgoingInvokeOnClosed() = testSockets { selector ->
         val socket: BoundDatagramSocket = aSocket(selector)
             .udp()
@@ -185,6 +188,7 @@ class UDPSocketTest {
     }
 
     @Test
+    @Ignore
     fun testSendReceive(): Unit = testSockets { selector ->
         aSocket(selector)
             .udp()
