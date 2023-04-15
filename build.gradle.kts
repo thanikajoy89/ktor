@@ -252,6 +252,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstall
 
 
 allprojects.forEach {
+    val jvmApiBuild = it.tasks.findByName("jvmApiBuild")
+    if (jvmApiBuild != null) {
+        jvmApiBuild.enabled = false
+    }
+
     it.tasks.whenTaskAdded {
         if (name == "compileJsAndWasmSharedMainKotlinMetadata") {
             enabled = false
