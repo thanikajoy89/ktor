@@ -20,6 +20,7 @@ class OutputStreamAdapterTest {
             }
         }.toOutputStream().writer().use {
             it.write(message)
+            it.flush()
         }
 
         assertEquals(message, result.await())

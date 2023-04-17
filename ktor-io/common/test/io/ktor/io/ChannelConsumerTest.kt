@@ -35,7 +35,7 @@ class ChannelConsumerTest {
         }
 
         channel.writeByte(1)
-        channel.close()
+        channel.flushAndClose()
     }
 
     @Test
@@ -77,7 +77,7 @@ class ChannelConsumerTest {
         channel.writeByte(1)
         channel.flush()
         channel.writeByte(2)
-        channel.close()
+        channel.flushAndClose()
     }
 
     @Test
@@ -93,11 +93,11 @@ class ChannelConsumerTest {
         }
 
         channel.writeByte(1)
-        val exception = assertFailsWith<CancellationException> {
+        val exception = assertFailsWith<IOException> {
             channel.flush()
         }
 
-        assertEquals("Consumer has failed", exception.message)
+        assertEquals("test", exception.message)
         assertTrue(channel.writablePacket.isEmpty)
     }
 
@@ -108,11 +108,11 @@ class ChannelConsumerTest {
         }
 
         channel.writeByte(1)
-        val exception = assertFailsWith<CancellationException> {
+        val exception = assertFailsWith<IOException> {
             channel.flush()
         }
 
-        assertEquals("Consumer has failed", exception.message)
+        assertEquals("test", exception.message)
         assertTrue(channel.writablePacket.isEmpty)
     }
 

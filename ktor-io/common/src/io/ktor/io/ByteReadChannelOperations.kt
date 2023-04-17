@@ -79,7 +79,7 @@ public suspend fun ByteReadChannel.copyTo(dst: ByteWriteChannel, limit: Long = L
  */
 public suspend fun ByteReadChannel.copyAndClose(dst: ByteWriteChannel, limit: Long = Long.MAX_VALUE): Long {
     val count = copyTo(dst, limit)
-    dst.close()
+    dst.flushAndClose()
     return count
 }
 

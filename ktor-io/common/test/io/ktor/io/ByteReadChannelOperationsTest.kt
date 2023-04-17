@@ -123,6 +123,7 @@ class ByteReadChannelExtensionsTest {
 
         channel.copyAndClose(out, limit = 5)
         assertArrayEquals(byteArrayOf(1, 2, 3, 4, 5), result.await())
+        channel.cancel()
     }
 
     @Test

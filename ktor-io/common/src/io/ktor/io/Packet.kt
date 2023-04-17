@@ -22,9 +22,8 @@ public class Packet : ReadablePacket, Closeable {
         return state.first()
     }
 
-    public fun validate() {
+    internal fun validate() {
         if (state.sumOf { it.availableForRead } != availableForRead) {
-            println("ERROR")
             error("ERROR")
         }
     }

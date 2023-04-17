@@ -22,16 +22,12 @@ class ReaderTest {
             error("Expected")
         }
 
-        var failed = false
-        try {
+        val cause = assertFailsWith<IllegalStateException> {
             reader.writeByte(42)
             reader.flush()
-        } catch (cause: CancellationException) {
-            failed = true
-            assertEquals("Expected", cause.unwrapCancellation().message)
         }
 
-        assertTrue(failed, "Channel should fail with the exception")
-        assertFalse(failInHandler, "Exception should be thrown only from channel")
+        assertEquals("Expected", cause.message)
+        assertTrue(failInHandler)
     }
 }

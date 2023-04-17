@@ -4,6 +4,11 @@
 
 kotlin {
     sourceSets {
+        jvmMain {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.debug)
+            }
+        }
         posixMain {
             dependencies {
                 implementation(project(":ktor-utils"))

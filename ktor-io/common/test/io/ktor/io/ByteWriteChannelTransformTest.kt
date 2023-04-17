@@ -58,15 +58,15 @@ class ByteWriteChannelTransformTest {
         }
 
         val transformed = output.incrementEachByte()
-        val cause = assertFailsWith<CancellationException> {
+        val cause = assertFailsWith<IOException> {
             transformed.writeByte(1)
             transformed.flushAndClose()
         }
 
-        assertEquals("test", cause.unwrapCancellation().message)
+        assertEquals("test", cause.message)
     }
 
-    private fun ByteWriteChannel.incrementEachByte() = map {
+    private fun ByteWriteChannel.incrementEachByte(): ByteWriteChannel = map {
         it.incrementEachByte()
     }
 }

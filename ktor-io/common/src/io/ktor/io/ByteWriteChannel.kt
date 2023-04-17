@@ -50,7 +50,7 @@ public interface ByteWriteChannel {
      */
     public suspend fun flush()
 
-    public suspend fun flushAndClose(): Boolean
+    public suspend fun flushAndClose()
 }
 
 public fun ByteWriteChannel.writeShort(s: Int) {
