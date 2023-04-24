@@ -4,9 +4,4 @@
 
 package io.ktor.io.charsets
 
-import io.ktor.io.*
-import java.nio.*
-import java.nio.charset.*
-
-@Suppress("NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS")
 public actual typealias Charset = java.nio.charset.Charset

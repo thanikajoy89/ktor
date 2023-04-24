@@ -73,4 +73,24 @@ class UTFTest {
 
         return result
     }
+
+    @Test
+    fun charsetDecoderPlayground() {
+        val encoder = kotlin.text.Charsets.UTF_8.newEncoder()
+        val decoder = kotlin.text.Charsets.UTF_8.newDecoder()
+
+        val line = """😊""".repeat(2)
+
+        val encoded: ByteBuffer = encoder.encode(CharBuffer.wrap(line))
+        val first = ByteBuffer.wrap(ByteArray(7) { encoded.get() })
+        val second = ByteBuffer.wrap(ByteArray(1) { encoded.get() })
+
+        val out = CharBuffer.allocate(4)
+        val r1 = decoder.decode(first, out, false)
+        val r2 = decoder.decode(second, out, true)
+
+        val result = String(out.array(), 0, out.position())
+
+        println("result: $result")
+    }
 }

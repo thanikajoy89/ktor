@@ -5,8 +5,9 @@
 package io.ktor.io.charsets
 
 public actual object Charsets {
-    public actual val UTF_8: Charset = CharsetImpl("UTF-8")
-    public actual val ISO_8859_1: Charset = CharsetImpl("ISO-8859-1")
+    public actual val UTF_8: Charset = JsCharset("UTF-8")
+    public actual val ISO_8859_1: Charset = JsCharset("ISO-8859-1")
 }
 
-private class CharsetImpl(name: String) : Charset(name)
+internal class JsCharset(name: String) : Charset(name)
+

@@ -5,16 +5,15 @@
 package io.ktor.io
 
 import io.ktor.io.charsets.*
-import kotlin.text.toByteArray
 
 public actual fun String(
     bytes: ByteArray,
     offset: Int,
     length: Int,
     charset: Charset
-): String = kotlin.text.String(bytes, offset, length, charset)
+): String = String(bytes, offset, length, charset.charset)
 
 
 public actual fun String.toByteArray(
     charset: Charset
-): ByteArray = toByteArray(charset)
+): ByteArray = toByteArray(charset.charset)

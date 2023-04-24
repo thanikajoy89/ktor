@@ -276,7 +276,9 @@ public class Packet : ReadablePacket, Closeable {
             return
         }
 
-        TODO("Unsupported charset: $charset")
+        val valueToEncode = value.substring(offset, offset + length)
+        val buffer = charset.encodeString(valueToEncode)
+        writeBuffer(buffer)
     }
 
     public override fun readPacket(length: Int): Packet {

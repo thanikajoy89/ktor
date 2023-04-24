@@ -4,7 +4,6 @@
 
 package io.ktor.io.charsets
 
-// ----------------------------- REGISTRY ------------------------------------------------------------------------------
 public expect object Charsets {
     public val UTF_8: Charset
     public val ISO_8859_1: Charset
