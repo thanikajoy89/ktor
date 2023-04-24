@@ -56,18 +56,4 @@ class ReverseByteOrderTest {
         val v: ULong = 0xf234556677889922u
         assertEquals(0x22998877665534f2u, v.reverseByteOrder())
     }
-
-    @Test
-    fun testReverseFloat() {
-        val v = 1.5f
-        v.reverseByteOrder()
-        // TODO test?
-    }
-
-    @Test
-    fun testReverseDouble() {
-        val v = 1.5
-        v.reverseByteOrder()
-        // TODO test?
-    }
 }

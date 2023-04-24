@@ -1,10 +1,6 @@
 package io.ktor.io
 
-import io.ktor.io.*
-import io.ktor.io.pool.*
 import java.nio.*
-
-private val TODO_POOL = ByteBufferPool()
 
 public fun ByteWriteChannel.writeAvailable(src: ByteBuffer): Int {
     val result = src.remaining()
