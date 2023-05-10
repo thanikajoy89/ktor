@@ -246,6 +246,7 @@ fun KotlinMultiplatformExtension.configureSourceSets() {
 
             languageSettings.apply {
                 progressiveMode = true
+                optIn("kotlinx.cinterop.ExperimentalForeignApi")
             }
         }
 
