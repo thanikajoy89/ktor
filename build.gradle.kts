@@ -97,6 +97,8 @@ plugins {
     id("com.osacky.doctor") version "0.8.1"
 }
 
+val kotlinVersion = libs.versions.kotlin.version.get()
+
 allprojects {
     group = "io.ktor"
     version = configuredVersion
