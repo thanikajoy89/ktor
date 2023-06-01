@@ -5,9 +5,9 @@
 package io.ktor.client.engine.winhttp.internal
 
 import kotlinx.cinterop.*
-import platform.winhttp.*
 import platform.windows.*
 import platform.windows.HINTERNET
+import platform.winhttp.*
 
 @OptIn(ExperimentalForeignApi::class)
 internal enum class WinHttpCallbackStatus(val value: UInt) {

@@ -23,16 +23,20 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.*
 import kotlin.random.*
 import kotlin.test.*
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(InternalAPI::class)
-abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration>(
+public abstract class WebSocketEngineSuite<
+    TEngine : ApplicationEngine,
+    TConfiguration : ApplicationEngine.Configuration
+    >(
     hostFactory: ApplicationEngineFactory<TEngine, TConfiguration>
 ) : EngineTestBase<TEngine, TConfiguration>(hostFactory) {
     private val errors = mutableListOf<Throwable>()
-    override val timeout = 30.seconds
+    override val timeout: Duration = 30.seconds
 
     override fun plugins(application: Application, routingConfigurer: Route.() -> Unit) {
         application.install(WebSockets)
@@ -40,7 +44,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testWebSocketDisconnectDuringConsuming() = runTest {
+    public fun testWebSocketDisconnectDuringConsuming(): Unit = runTest {
         val closeReasonJob = Job()
         val contextJob = Job()
 
@@ -83,7 +87,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testWebSocketDisconnectDuringSending() = runTest {
+    public fun testWebSocketDisconnectDuringSending(): Unit = runTest {
         val closeReasonJob = Job()
         val contextJob = Job()
 
@@ -129,7 +133,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testWebSocketDisconnectDuringDowntime() = runTest {
+    public fun testWebSocketDisconnectDuringDowntime(): Unit = runTest {
         val closeReasonJob = Job()
         val contextJob = Job()
 
@@ -173,7 +177,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testRawWebSocketDisconnectDuringConsuming() = runTest {
+    public fun testRawWebSocketDisconnectDuringConsuming(): Unit = runTest {
         val contextJob = Job()
 
         createAndStartServer {
@@ -207,7 +211,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
 
     @Ignore // fails process on native
     @Test
-    fun testRawWebSocketDisconnectDuringSending() = runTest {
+    public fun testRawWebSocketDisconnectDuringSending(): Unit = runTest {
         val contextJob = Job()
 
         createAndStartServer {
@@ -244,7 +248,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
 
     @Ignore // For now we assume that without any network interactions the socket will remain open.
     @Test
-    fun testRawWebSocketDisconnectDuringDowntime() = runTest {
+    public fun testRawWebSocketDisconnectDuringDowntime(): Unit = runTest {
         val contextJob = Job()
 
         createAndStartServer {
@@ -277,7 +281,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testWebSocketGenericSequence() = runTest {
+    public fun testWebSocketGenericSequence(): Unit = runTest {
         val collected = Channel<String>(Channel.UNLIMITED)
 
         createAndStartServer {
@@ -313,7 +317,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testWebSocketPingPong() = runTest {
+    public fun testWebSocketPingPong(): Unit = runTest {
         createAndStartServer {
             webSocket("/") {
                 timeoutMillis = 120.seconds.inWholeMilliseconds
@@ -354,7 +358,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testReceiveMessages() = runTest {
+    public fun testReceiveMessages(): Unit = runTest {
         val count = 125
         val template = (1..count).joinToString("") { (it and 0x0f).toString(16) }
         val bytes = template.toByteArray()
@@ -405,7 +409,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testProduceMessages() = runTest {
+    public fun testProduceMessages(): Unit = runTest {
         val count = 125
         val template = (1..count).joinToString("") { (it and 0x0f).toString(16) }
 
@@ -439,7 +443,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testBigFrame() = runTest {
+    public fun testBigFrame(): Unit = runTest {
         val content = ByteArray(20 * 1024 * 1024)
         Random.nextBytes(content)
 
@@ -480,7 +484,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testALotOfFrames() = runTest {
+    public fun testALotOfFrames(): Unit = runTest {
         val expectedCount = 100000L
 
         createAndStartServer {
@@ -520,7 +524,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    fun testServerClosingFirst() = runTest {
+    public fun testServerClosingFirst(): Unit = runTest {
         createAndStartServer {
             webSocket("/") {
                 close(CloseReason(CloseReason.Codes.TRY_AGAIN_LATER, "test"))
@@ -542,7 +546,7 @@ abstract class WebSocketEngineSuite<TEngine : ApplicationEngine, TConfiguration 
     }
 
     @Test
-    open fun testClientClosingFirst() = runTest {
+    public open fun testClientClosingFirst(): Unit = runTest {
         val deferred = CompletableDeferred<Unit>()
 
         createAndStartServer {
