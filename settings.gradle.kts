@@ -7,6 +7,7 @@ pluginManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
+        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven")
     }
     resolutionStrategy {
         eachPlugin {

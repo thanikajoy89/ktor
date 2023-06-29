@@ -5,6 +5,7 @@ pluginManagement {
     val build_snapshot_train: String? by settings
     repositories {
         maven("https://plugins.gradle.org/m2")
+        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven")
         if (build_snapshot_train?.toBoolean() == true) {
             mavenLocal()
         }
