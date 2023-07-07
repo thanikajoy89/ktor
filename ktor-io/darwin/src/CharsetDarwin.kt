@@ -38,7 +38,8 @@ private class CharsetDarwin(name: String) : Charset(name) {
         "ASCII" -> NSASCIIStringEncoding
         "NEXTSTEP" -> NSNEXTSTEPStringEncoding
         "JAPANESE_EUC" -> NSJapaneseEUCStringEncoding
-        else -> error("Charset $name is not supported by darwin.")
+        "LATIN1" -> NSISOLatin1StringEncoding
+        else -> throw IllegalArgumentException("Charset $name is not supported by darwin.")
     }
 
     override fun newEncoder(): CharsetEncoder = object : CharsetEncoder(this) {
@@ -57,7 +58,7 @@ internal actual fun CharsetEncoder.encodeImpl(input: CharSequence, fromIndex: In
 
     val data = content.dataUsingEncoding(charset.encoding)
         ?.toByteArray()
-        ?: error("Failed to convert String to Bytes using $charset")
+        ?: throw MalformedInputException("Failed to convert String to Bytes using $charset")
 
     dst.writeFully(data)
     return data.size
@@ -71,10 +72,21 @@ public actual fun CharsetDecoder.decode(input: Input, dst: Appendable, max: Int)
 
     val data = source.toNSData()
     val content = NSString.create(data, charset.encoding) as? String
-        ?: error("Failed to convert Bytes to String using $charset")
+        ?: throw MalformedInputException("Failed to convert Bytes to String using $charset")
 
     dst.append(content)
     return content.length
+}
+
+public actual fun CharsetEncoder.encodeUTF8(input: ByteReadPacket, dst: Output) {
+    val charset = _charset as? CharsetDarwin ?: error("Charset $this is not supported by darwin.")
+    val source: ByteArray = input.readBytes()
+
+    val data = source.toNSData()
+    val content = NSString.create(data, charset.encoding) as? String
+        ?: throw MalformedInputException("Failed to convert Bytes to String using $charset")
+
+    dst.writeFully(content.toByteArray())
 }
 
 @OptIn(UnsafeNumber::class)
@@ -84,7 +96,7 @@ public actual fun CharsetDecoder.decodeExactBytes(input: Input, inputLength: Int
 
     val data = source.toNSData()
     val content = NSString.create(data, charset.encoding) as? String
-        ?: error("Failed to convert Bytes to String using $charset")
+        ?: throw MalformedInputException("Failed to convert Bytes to String using $charset")
 
     return content
 }
@@ -101,7 +113,7 @@ internal actual fun CharsetDecoder.decodeBuffer(
     val count = input.readBytes(min(input.readRemaining, max))
     val data = count.toNSData()
     val content = NSString.create(data, charset.encoding) as? String
-        ?: error("Failed to convert Bytes to String using $charset")
+        ?: throw MalformedInputException("Failed to convert Bytes to String using $charset")
 
     out.append(content)
     return content.length
