@@ -72,8 +72,8 @@ internal actual fun CharsetEncoder.encodeImpl(input: CharSequence, fromIndex: In
                     inbytesleft.value = (length * 2).convert<size_t>()
                     outbytesleft.value = dstRemaining
 
-                    val convertResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr)
-                    if (convertResult == MAX_SIZE.convert()) {
+                    val convertResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr).toULong()
+                    if (convertResult == MAX_SIZE.toULong()) {
                         checkIconvResult(posix_errno())
                     }
 
@@ -125,8 +125,8 @@ public actual fun CharsetDecoder.decode(input: Input, dst: Appendable, max: Int)
                         inbytesleft.value = length
                         outbytesleft.value = dstRemaining
 
-                        val convertResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr)
-                        if (convertResult == MAX_SIZE.convert()) {
+                        val convertResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr).toULong()
+                        if (convertResult == MAX_SIZE.toULong()) {
                             checkIconvResult(posix_errno())
                         }
 
@@ -190,8 +190,8 @@ internal actual fun CharsetDecoder.decodeBuffer(
                     inbytesleft.value = size.convert()
                     outbytesleft.value = (size * 2).convert()
 
-                    val convResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr)
-                    if (convResult == MAX_SIZE.convert()) {
+                    val convResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr).toULong()
+                    if (convResult == MAX_SIZE.toULong()) {
                         checkIconvResult(posix_errno())
                     }
 
@@ -251,7 +251,7 @@ public actual fun CharsetDecoder.decodeExactBytes(input: Input, inputLength: Int
                         outbytesleft.value = dstRemaining
 
                         val convResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr)
-                        if (convResult == MAX_SIZE.convert()) {
+                        if (convResult == MAX_SIZE.toULong()) {
                             checkIconvResult(posix_errno())
                         }
 
@@ -319,8 +319,8 @@ public actual fun CharsetEncoder.encodeUTF8(input: ByteReadPacket, dst: Output) 
                             inbytesleft.value = length
                             outbytesleft.value = dstRemaining
 
-                            val convResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr)
-                            if (convResult == MAX_SIZE.convert()) {
+                            val convResult = iconv(cd, inbuf.ptr, inbytesleft.ptr, outbuf.ptr, outbytesleft.ptr).toULong()
+                            if (convResult == MAX_SIZE.toULong()) {
                                 checkIconvResult(posix_errno())
                             }
 
