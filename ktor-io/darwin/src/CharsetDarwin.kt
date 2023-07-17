@@ -5,6 +5,7 @@
 package io.ktor.utils.io.charsets
 
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.errors.*
 import kotlinx.cinterop.*
 import platform.Foundation.*
 import platform.posix.*
@@ -54,7 +55,9 @@ internal actual fun CharsetEncoder.encodeImpl(input: CharSequence, fromIndex: In
     val charset = _charset as? CharsetDarwin ?: error("Charset $this is not supported by darwin.")
 
     @Suppress("CAST_NEVER_SUCCEEDS")
-    val content = input.substring(fromIndex, toIndex) as? NSString ?: error("Failed to convert input to NSString.")
+    val max = dst.writeRemaining
+    val endIndex = min(toIndex, fromIndex + max)
+    val content = input.substring(fromIndex, endIndex) as? NSString ?: error("Failed to convert input to NSString.")
 
     val data = content.dataUsingEncoding(charset.encoding)
         ?.toByteArray()
@@ -67,6 +70,10 @@ internal actual fun CharsetEncoder.encodeImpl(input: CharSequence, fromIndex: In
 @Suppress("CAST_NEVER_SUCCEEDS")
 @OptIn(UnsafeNumber::class)
 public actual fun CharsetDecoder.decode(input: Input, dst: Appendable, max: Int): Int {
+    if (max != Int.MAX_VALUE) {
+        throw IOException("Max argument is deprecated")
+    }
+
     val charset = _charset as? CharsetDarwin ?: error("Charset $this is not supported by darwin.")
     val source: ByteArray = input.readBytes()
 
@@ -117,6 +124,20 @@ internal actual fun CharsetDecoder.decodeBuffer(
 
     out.append(content)
     return content.length
+}
+
+@OptIn(UnsafeNumber::class)
+internal actual fun CharsetEncoder.encodeToByteArrayImpl1(
+    input: CharSequence,
+    fromIndex: Int,
+    toIndex: Int
+): ByteArray {
+    val charset = _charset as? CharsetDarwin ?: error("Charset $this is not supported by darwin.")
+    val content = input.substring(fromIndex, toIndex) as? NSString ?: error("Failed to convert input to NSString.")
+
+    return content.dataUsingEncoding(charset.encoding)
+        ?.toByteArray()
+        ?: throw MalformedInputException("Failed to convert String to Bytes using $charset")
 }
 
 @OptIn(UnsafeNumber::class)
