@@ -23,8 +23,31 @@ public interface ApplicationEngineFactory<
 }
 
 /**
- * Creates an embedded server with the given [factory], listening on [host]:[port]
- * @param watchPaths specifies path substrings that will be watched for automatic reloading
+ * Creates a Ktor HTTP server.
+ *
+ * This function configure and build HTTP server and start it on the specific [port].
+ *
+ * The simple http server can be configured and started as follows:
+ * ```kotlin
+ * val server = embeddedServer(Netty, port = 9090) {
+ *     routing {
+ *         get("/") {
+ *             call.respondText("Hello, world!")
+ *         }
+ *     }
+ * }
+ *
+ * server.start(wait = true)
+ * ```
+ *
+ * You can learn more about creating new Ktor project in the documentation: https://ktor.io/docs/create-server.html#engine-main
+ *
+ * @param factory is an object referring to the application engine like [Netty], [CIO], [Jetty]. To learn more about
+ * engine check the documentation: https://ktor.io/docs/engines.html
+ *
+ * @param watchPaths specifies a list of paths that will be watched for automatic reloading. You can learn more about
+ * auto-reloading in the documentation: https://ktor.io/docs/auto-reload.html#watch-paths
+ *
  * @param configure configuration script for the engine
  * @param module application module function
  */
@@ -40,8 +63,29 @@ embeddedServer(
 ): TEngine = GlobalScope.embeddedServer(factory, port, host, watchPaths, EmptyCoroutineContext, configure, module)
 
 /**
- * Creates an embedded server with the given [factory], listening on [host]:[port]
- * @param watchPaths specifies path substrings that will be watched for automatic reloading
+ * Creates a Ktor server.
+ *
+ * The simple http server can be configured and started as follows:
+ * ```kotlin
+ * val server = embeddedServer(Netty, port = 9090) {
+ *     routing {
+ *         get("/") {
+ *             call.respondText("Hello, world!")
+ *         }
+ *     }
+ * }
+ *
+ * server.start(wait = true)
+ * ```
+ *
+ * You can learn more about creating new Ktor project in the documentation: https://ktor.io/docs/create-server.html#engine-main
+ *
+ * @param factory is an object referring to the application engine like [Netty], [CIO], [Jetty]. To learn more about
+ * engine check the documentation: https://ktor.io/docs/engines.html
+ *
+ * @param watchPaths specifies a list of paths that will be watched for automatic reloading. You can learn more about
+ * auto-reloading in the documentation: https://ktor.io/docs/auto-reload.html#watch-paths
+ *
  * @param configure configuration script for the engine
  * @param parentCoroutineContext specifies a coroutine context to be used for server jobs
  * @param module application module function
@@ -73,9 +117,31 @@ public fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Conf
 }
 
 /**
- * Creates an embedded server with the given [factory], listening on given [connectors]
+ * Creates a Ktor server.
+ *
+ * The simple http server can be configured and started as follows:
+ * ```kotlin
+ * val server = embeddedServer(Netty, port = 9090) {
+ *     routing {
+ *         get("/") {
+ *             call.respondText("Hello, world!")
+ *         }
+ *     }
+ * }
+ *
+ * server.start(wait = true)
+ * ```
+ *
+ * You can learn more about creating new Ktor project in the documentation: https://ktor.io/docs/create-server.html#engine-main
+ *
+ * @param factory is an object referring to the application engine like [Netty], [CIO], [Jetty]. To learn more about
+ * engine check the documentation: https://ktor.io/docs/engines.html
+ *
  * @param connectors default listening on 0.0.0.0:80
- * @param watchPaths specifies path substrings that will be watched for automatic reloading
+ *
+ * @param watchPaths specifies a list of paths that will be watched for automatic reloading. You can learn more about
+ * auto-reloading in the documentation: https://ktor.io/docs/auto-reload.html#watch-paths
+ *
  * @param parentCoroutineContext specifies a coroutine context to be used for server jobs
  * @param configure configuration script for the engine
  * @param module application module function
@@ -101,7 +167,25 @@ public fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Conf
 }
 
 /**
- * Creates an embedded server with the given [factory], [environment] and [configure] script
+ * Creates a Ktor server.
+ *
+ * The simple http server can be configured and started as follows:
+ * ```kotlin
+ * val server = embeddedServer(Netty, port = 9090) {
+ *     routing {
+ *         get("/") {
+ *             call.respondText("Hello, world!")
+ *         }
+ *     }
+ * }
+ *
+ * server.start(wait = true)
+ * ```
+ *
+ * You can learn more about creating new Ktor project in the documentation: https://ktor.io/docs/create-server.html#engine-main
+ *
+ * @param factory is an object referring to the application engine like [Netty], [CIO], [Jetty]. To learn more about
+ * engine check the documentation: https://ktor.io/docs/engines.html
  */
 public fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> embeddedServer(
     factory: ApplicationEngineFactory<TEngine, TConfiguration>,

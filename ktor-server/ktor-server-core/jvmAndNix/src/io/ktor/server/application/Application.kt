@@ -10,9 +10,20 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.*
 
 /**
- * Represents configured and running web application, capable of handling requests.
- * It is also the application coroutine scope that is cancelled immediately at application stop so useful
- * for launching background coroutines.
+ * Represents Ktor web application, capable of handling requests.Every module has the [Application] class as receiver.
+ * It allows to configure application routes and plugins:
+ *
+ * ```kotlin
+ * fun Application.module() {
+ *     install(DefaultHeaders)
+ *
+ *     routing {
+ *         get("/") {
+ *             call.respondText("Hello, from backend!")
+ *         }
+ *     }
+ * }
+ * ```
  *
  * @param environment Instance of [ApplicationEnvironment] describing environment this application runs in
  */
