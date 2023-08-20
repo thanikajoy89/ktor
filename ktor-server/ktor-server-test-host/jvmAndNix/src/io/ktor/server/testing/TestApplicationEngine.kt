@@ -37,13 +37,8 @@ class TestApplicationEngine(
     internal val configuration: Configuration
 ) : BaseApplicationEngine(environment, monitor, developmentMode, EnginePipeline(developmentMode)), CoroutineScope {
 
-    internal enum class State {
-        Created, Starting, Started, Stopped
-    }
-
     private val testEngineJob = Job(environment.parentCoroutineContext[Job])
     private var cancellationDeferred: CompletableJob? = null
-    internal val state = atomic(State.Created)
 
     override val coroutineContext: CoroutineContext =
         environment.parentCoroutineContext + testEngineJob + configuration.dispatcher
@@ -86,8 +81,6 @@ class TestApplicationEngine(
      * A client instance connected to this test server instance. Only works until engine stop invocation.
      */
     private val _client = atomic<HttpClient?>(null)
-
-    private val applicationStarting = Job(testEngineJob)
 
     val client: HttpClient
         get() = _client.value!!
@@ -149,22 +142,14 @@ class TestApplicationEngine(
     }
 
     override fun start(wait: Boolean): ApplicationEngine {
-        if (state.compareAndSet(State.Created, State.Starting)) {
-            check(testEngineJob.isActive) { "Test engine is already completed" }
-            cancellationDeferred = stopServerOnCancellation()
-            applicationStarting.complete()
-            state.value = State.Started
-        }
-        if (state.value == State.Starting) {
-            runBlocking { applicationStarting.join() }
-        }
+        check(testEngineJob.isActive) { "Test engine is already completed" }
+        cancellationDeferred = stopServerOnCancellation()
 
         return this
     }
 
     override fun stop(gracePeriodMillis: Long, timeoutMillis: Long) {
         try {
-            state.value = State.Stopped
             cancellationDeferred?.complete()
             client.close()
             engine.close()

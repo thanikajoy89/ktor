@@ -52,12 +52,7 @@ class CallLoggingTest {
             }
         }
     }
-    private val environment: ApplicationEngineEnvironmentBuilder.() -> Unit = {
-        module {
-            install(CallLogging) {
-                clock { 0 }
-            }
-        }
+    private val environment: ApplicationEnvironmentBuilder.() -> Unit = {
         log = logger
     }
 
@@ -73,31 +68,33 @@ class CallLoggingTest {
         testApplication {
             environment { environment() }
             application {
+                install(CallLogging) { clock { 0 } }
                 hash = hashCode().toString(radix = 16)
             }
         }
 
         assertTrue(messages.size >= 3, "It should be at least 3 message logged:\n$messages")
-        assertTrue {
-            messages[messages.size - 3].startsWith(
-                "INFO: Application started: class io.ktor.server.application.Application(0x$hash)"
-            )
-        }
-        assertTrue {
-            messages[messages.size - 2].startsWith(
-                "INFO: Application stopping: class io.ktor.server.application.Application(0x$hash)"
-            )
-        }
-        assertTrue {
-            messages[messages.size - 1].startsWith(
-                "INFO: Application stopped: class io.ktor.server.application.Application(0x$hash)"
-            )
-        }
+        assertContains(
+            messages,
+            "INFO: Application started: class io.ktor.server.application.Application(0x$hash)"
+            "No started message logged:\n$messages"
+        )
+        assertContains(
+            messages,
+            "INFO: Application stopping: class io.ktor.server.application.Application(0x$hash)"
+            "No stopping message logged:\n$messages"
+        )
+        assertContains(
+            messages,
+            "INFO: Application stopped: class io.ktor.server.application.Application(0x$hash)"
+            "No stopped message logged:\n$messages"
+        )
     }
 
     @Test
     fun `can log an unhandled get request`() = testApplication {
         environment { environment() }
+        install(CallLogging) { clock { 0 } }
 
         createClient { expectSuccess = false }.get("/")
 
@@ -107,6 +104,7 @@ class CallLoggingTest {
     @Test
     fun `can log a successful get request`() = testApplication {
         environment { environment() }
+        install(CallLogging) { clock { 0 } }
         routing {
             get {
                 call.respond(HttpStatusCode.OK)
@@ -121,20 +119,20 @@ class CallLoggingTest {
     @Test
     fun `can customize message format`() = testApplication {
         environment {
-            module {
-                install(CallLogging) {
-                    format { call ->
-                        "${call.request.uri} -> ${call.response.status()}, took ${call.processingTimeMillis { 3 }}ms"
-                    }
-                    clock { 0 }
+            log = logger
+        }
+        application {
+            install(CallLogging) {
+                format { call ->
+                    "${call.request.uri} -> ${call.response.status()}, took ${call.processingTimeMillis { 3 }}ms"
                 }
-                routing {
-                    get("/{...}") {
-                        call.respondText("OK")
-                    }
+                clock { 0 }
+            }
+            routing {
+                get("/{...}") {
+                    call.respondText("OK")
                 }
             }
-            log = logger
         }
 
         client.get("/uri-123")
@@ -145,17 +143,17 @@ class CallLoggingTest {
     fun `logs request processing time`() = testApplication {
         var time = 123L
         environment {
-            module {
-                install(CallLogging) {
-                    clock { time.also { time += 100 } }
-                }
-                routing {
-                    get("/{...}") {
-                        call.respondText("OK")
-                    }
+            log = logger
+        }
+        application {
+            install(CallLogging) {
+                clock { time.also { time += 100 } }
+            }
+            routing {
+                get("/{...}") {
+                    call.respondText("OK")
                 }
             }
-            log = logger
         }
 
         client.get("/")
@@ -165,14 +163,15 @@ class CallLoggingTest {
     @Test
     fun `can filter calls to log`() = testApplication {
         environment {
-            module {
-                install(CallLogging) {
-                    filter { !it.request.origin.uri.contains("avoid") }
-                    clock { 0 }
-                }
-            }
             log = logger
         }
+        application {
+            install(CallLogging) {
+                filter { !it.request.origin.uri.contains("avoid") }
+                clock { 0 }
+            }
+        }
+
         val client = createClient { expectSuccess = false }
         client.get("/")
         client.get("/avoid")
@@ -184,13 +183,13 @@ class CallLoggingTest {
     @Test
     fun `can change log level`() = testApplication {
         environment {
-            module {
-                install(CallLogging) {
-                    level = Level.DEBUG
-                    clock { 0 }
-                }
-            }
             log = logger
+        }
+        application {
+            install(CallLogging) {
+                level = Level.DEBUG
+                clock { 0 }
+            }
         }
         routing {
             get {
@@ -206,15 +205,15 @@ class CallLoggingTest {
     @Test
     fun `can fill MDC after call`() = testApplication {
         environment {
-            module {
-                install(CallLogging) {
-                    mdc("mdc-uri") { it.request.uri }
-                    mdc("mdc-status") { it.response.status()?.value?.toString() }
-                    format { it.request.uri }
-                    clock { 0 }
-                }
-            }
             log = logger
+        }
+        application {
+            install(CallLogging) {
+                mdc("mdc-uri") { it.request.uri }
+                mdc("mdc-status") { it.response.status()?.value?.toString() }
+                format { it.request.uri }
+                clock { 0 }
+            }
         }
         routing {
             get("/*") {
@@ -235,16 +234,16 @@ class CallLoggingTest {
             onCall { it.response.headers.append("test-header", "test-value") }
         }
         environment {
-            module {
-                install(CallLogging) {
-                    mdc("mdc-test-header") { it.response.headers["test-header"] }
-                    mdc("mdc-status") { it.response.status()?.value?.toString() }
-                    format { it.request.uri }
-                    clock { 0 }
-                }
-                install(TestPlugin)
-            }
             log = logger
+        }
+        application {
+            install(CallLogging) {
+                mdc("mdc-test-header") { it.response.headers["test-header"] }
+                mdc("mdc-status") { it.response.status()?.value?.toString() }
+                format { it.request.uri }
+                clock { 0 }
+            }
+            install(TestPlugin)
         }
         routing {
             get("/*") {
@@ -264,17 +263,17 @@ class CallLoggingTest {
         val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
         environment {
-            module {
-                install(CallLogging) {
-                    mdc("mdc-uri") { it.request.uri }
-                    callIdMdc("mdc-call-id")
-                    clock { 0 }
-                }
-                install(CallId) {
-                    generate { "generated-call-id-${counter++}" }
-                }
-            }
             log = logger
+        }
+        application {
+            install(CallLogging) {
+                mdc("mdc-uri") { it.request.uri }
+                callIdMdc("mdc-call-id")
+                clock { 0 }
+            }
+            install(CallId) {
+                generate { "generated-call-id-${counter++}" }
+            }
         }
         application {
             routing {
@@ -303,17 +302,17 @@ class CallLoggingTest {
 
         val dispatcher = newFixedThreadPoolContext(1, "test-dispatcher")
         environment {
-            module {
-                install(CallLogging) {
-                    mdc("mdc-uri") { it.request.uri }
-                    callIdMdc("mdc-call-id")
-                    clock { 0 }
-                }
-                install(CallId) {
-                    generate { "generated-call-id-${counter++}" }
-                }
-            }
             log = logger
+        }
+        application {
+            install(CallLogging) {
+                mdc("mdc-uri") { it.request.uri }
+                callIdMdc("mdc-call-id")
+                clock { 0 }
+            }
+            install(CallId) {
+                generate { "generated-call-id-${counter++}" }
+            }
         }
         application {
             routing {
@@ -338,19 +337,19 @@ class CallLoggingTest {
     @Test
     fun `will setup mdc provider and use in status pages plugin`() = testApplication {
         environment {
-            module {
-                install(CallLogging) {
-                    mdc("mdc-uri") { it.request.uri }
-                    clock { 0 }
-                }
-                install(StatusPages) {
-                    exception<Throwable> { call, _ ->
-                        call.application.log.info("test message")
-                        call.respond("OK")
-                    }
+            log = logger
+        }
+        application {
+            install(CallLogging) {
+                mdc("mdc-uri") { it.request.uri }
+                clock { 0 }
+            }
+            install(StatusPages) {
+                exception<Throwable> { call, _ ->
+                    call.application.log.info("test message")
+                    call.respond("OK")
                 }
             }
-            log = logger
         }
         application {
             routing {
@@ -377,12 +376,10 @@ class CallLoggingTest {
         lateinit var hash: String
 
         testApplication {
-            environment {
-                module {
-                    install(CallLogging) {
-                        this.logger = customLogger
-                        clock { 0 }
-                    }
+            application {
+                install(CallLogging) {
+                    this.logger = customLogger
+                    clock { 0 }
                 }
             }
             application { hash = hashCode().toString(radix = 16) }
@@ -396,13 +393,13 @@ class CallLoggingTest {
     @Test
     fun `can log without colors`() = testApplication {
         environment {
-            module {
-                install(CallLogging) {
-                    disableDefaultColors()
-                    clock { 0 }
-                }
-            }
             log = logger
+        }
+        application {
+            install(CallLogging) {
+                disableDefaultColors()
+                clock { 0 }
+            }
         }
         createClient { expectSuccess = false }.get("/")
 
@@ -438,15 +435,15 @@ class CallLoggingTest {
     @Test
     fun `ignore static file request`() = testApplication {
         environment {
-            module {
-                install(CallLogging) {
-                    level = Level.INFO
-                    clock { 0 }
-                    disableDefaultColors()
-                    disableForStaticContent()
-                }
-            }
             log = logger
+        }
+        application {
+            install(CallLogging) {
+                level = Level.INFO
+                clock { 0 }
+                disableDefaultColors()
+                disableForStaticContent()
+            }
         }
         application {
             routing {
