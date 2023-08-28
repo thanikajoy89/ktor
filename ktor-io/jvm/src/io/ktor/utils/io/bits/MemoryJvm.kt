@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "NO_ACTUAL_FOR_EXPECT")
 
 package io.ktor.utils.io.bits
 
@@ -8,6 +8,7 @@ import java.nio.*
 /**
  * Memory instance with 0 size.
  */
+@AllowDifferentMembersInActual
 public actual val MEMORY_EMPTY: Memory = Memory(ByteBuffer.allocate(0).order(ByteOrder.BIG_ENDIAN))
 
 /**
@@ -17,6 +18,7 @@ public actual val MEMORY_EMPTY: Memory = Memory(ByteBuffer.allocate(0).order(Byt
  *
  * Instance of this class has no additional state except the bytes themselves.
  */
+@AllowDifferentMembersInActual
 public actual typealias Memory = ByteBuffer
 
 /**
