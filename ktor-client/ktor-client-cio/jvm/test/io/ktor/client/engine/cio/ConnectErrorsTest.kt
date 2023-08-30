@@ -9,7 +9,6 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.request.*
 import io.ktor.network.tls.certificates.*
-import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
@@ -30,13 +29,6 @@ class ConnectErrorsTest {
     @get:Rule
     val timeout = CoroutinesTimeout.seconds(60)
 
-    private val serverSocket = ServerSocket(0, 1)
-
-    @AfterTest
-    fun teardown() {
-        serverSocket.close()
-    }
-
     @Test
     fun testConnectAfterConnectionErrors(): Unit = runBlocking {
         val client = HttpClient(CIO) {
@@ -48,17 +40,15 @@ class ConnectErrorsTest {
         }
 
         client.use {
-            serverSocket.close()
-
             repeat(5) {
                 try {
-                    client.request("http://localhost:${serverSocket.localPort}/")
+                    client.request("http://localhost:80/")
                     fail("Shouldn't reach here")
-                } catch (_: java.net.ConnectException) {
+                } catch (_: ConnectException) {
                 }
             }
 
-            ServerSocket(serverSocket.localPort).use { newServer ->
+            ServerSocket(0).use { newServer ->
                 val thread = thread {
                     try {
                         newServer.accept().use { client ->
@@ -74,7 +64,7 @@ class ConnectErrorsTest {
                     }
                 }
                 withTimeout(10000L) {
-                    assertEquals("OK", client.get("http://localhost:${serverSocket.localPort}/").body())
+                    assertEquals("OK", client.get("http://localhost:${newServer.localPort}/").body())
                 }
                 thread.join()
             }
@@ -86,9 +76,7 @@ class ConnectErrorsTest {
         val client = HttpClient(CIO)
 
         client.use {
-            serverSocket.close()
-
-            ServerSocket(serverSocket.localPort).use { newServer ->
+            ServerSocket(0).use { newServer ->
                 val thread = thread {
                     try {
                         newServer.accept().use { client ->
@@ -102,7 +90,7 @@ class ConnectErrorsTest {
                     } catch (ignore: SocketException) {
                     }
                 }
-                assertEquals("OK", client.get("http://localhost:${serverSocket.localPort}/").body())
+                assertEquals("OK", client.get("http://localhost:${newServer.localPort}/").body())
                 thread.join()
             }
         }
@@ -113,9 +101,7 @@ class ConnectErrorsTest {
         val client = HttpClient(CIO)
 
         client.use {
-            serverSocket.close()
-
-            ServerSocket(serverSocket.localPort).use { newServer ->
+            ServerSocket(0).use { newServer ->
                 val thread = thread {
                     try {
                         newServer.accept().use { client ->
@@ -129,7 +115,7 @@ class ConnectErrorsTest {
                     } catch (ignore: SocketException) {
                     }
                 }
-                assertFails { client.get("http://localhost:${serverSocket.localPort}/") }
+                assertFails { client.get("http://localhost:${newServer.localPort}/") }
                 thread.join()
             }
         }
@@ -144,42 +130,36 @@ class ConnectErrorsTest {
             init(keyStore)
         }
 
-        HttpClient(
-            CIO.config {
-                maxConnectionsCount = 3
+        HttpClient(CIO.config {
+            maxConnectionsCount = 3
 
-                endpoint {
-                    connectTimeout = SOCKET_CONNECT_TIMEOUT
-                    connectAttempts = 1
-                }
-
-                https {
-                    trustManager = trustManagerFactory.trustManagers
-                        .first { it is X509TrustManager } as X509TrustManager
-                }
+            endpoint {
+                connectTimeout = SOCKET_CONNECT_TIMEOUT
+                connectAttempts = 1
             }
-        ).use { client ->
+
+            https {
+                trustManager = trustManagerFactory.trustManagers.first { it is X509TrustManager } as X509TrustManager
+            }
+        }).use { client ->
             val serverPort = ServerSocket(0).use { it.localPort }
-            val server = embeddedServer(
-                Netty,
-                environment = applicationEngineEnvironment {
-                    sslConnector(keyStore, "mykey", { "changeit".toCharArray() }, { "changeit".toCharArray() }) {
-                        port = serverPort
-                        keyStorePath = keyStoreFile.absoluteFile
-                    }
-                    module {
-                        routing {
-                            get {
-                                call.respondText("OK")
-                            }
+            val server = embeddedServer(Netty, environment = applicationEngineEnvironment {
+                sslConnector(keyStore, "mykey", { "changeit".toCharArray() }, { "changeit".toCharArray() }) {
+                    port = serverPort
+                    keyStorePath = keyStoreFile.absoluteFile
+                }
+                module {
+                    routing {
+                        get {
+                            call.respondText("OK")
                         }
                     }
                 }
-            )
+            })
 
             try {
                 client.get { url(scheme = "https", path = "/", port = serverPort) }.body<String>()
-            } catch (_: java.net.ConnectException) {
+            } catch (_: ConnectException) {
             }
 
             try {

@@ -33,6 +33,9 @@ public class Application(
         applicationJob.cancel()
         uninstallAllPlugins()
     }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    override fun toString(): String = "Application(0x${hashCode().toHexString()})"
 }
 
 /**

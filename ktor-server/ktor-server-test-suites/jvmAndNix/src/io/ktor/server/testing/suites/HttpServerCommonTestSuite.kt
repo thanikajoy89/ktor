@@ -548,6 +548,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     open fun testFlushingHeaders() {
         createAndStartServer {
@@ -592,6 +593,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
         }
     }
 
+    @Suppress("DEPRECATION")
     @OptIn(InternalAPI::class)
     @Test
     open fun testCanModifyRequestHeaders() {
@@ -748,6 +750,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testErrorInBodyClosesConnectionWithContentLength() {
         createAndStartServer {

@@ -53,8 +53,8 @@ private class ServletWriter(val output: ServletOutputStream) : WriteListener {
             // so we simply drop it as buffer leak has only limited performance impact
             // (buffer will be collected by GC and pool will produce another one)
             ArrayPool.recycle(buffer)
-        } catch (t: Throwable) {
-            onError(t)
+        } catch (cause: Throwable) {
+            onError(cause)
         } finally {
             events.close()
         }

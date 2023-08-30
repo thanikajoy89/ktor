@@ -23,6 +23,8 @@ internal class Timeout(
     private val onTimeout: suspend () -> Unit
 ) {
 
+    override fun toString(): String = "Timeout[$name]: ${timeoutMs}ms"
+
     private val lastActivityTime = atomic(0L)
     private val isStarted = atomic(false)
 

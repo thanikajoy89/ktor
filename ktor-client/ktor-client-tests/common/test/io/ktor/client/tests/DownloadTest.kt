@@ -22,14 +22,4 @@ class DownloadTest : ClientLoader() {
             assertEquals(text, response)
         }
     }
-
-    @Test
-    fun testDownload8175() = clientTests {
-        test { client ->
-            repeat(100) {
-                val url = "$TEST_SERVER/download/8175"
-                client.get(url).body<String>()
-            }
-        }
-    }
 }

@@ -83,9 +83,9 @@ public abstract class KtorServlet : HttpServlet(), CoroutineScope {
             // could only happen in blockingService branch
             application.log.debug("Request cancelled", cancelled)
             response.sendErrorIfNotCommitted("Cancelled")
-        } catch (ex: Throwable) {
-            application.log.error("ServletApplicationEngine cannot service the request", ex)
-            response.sendErrorIfNotCommitted(ex.message ?: ex.toString())
+        } catch (cause: Throwable) {
+            application.log.error("ServletApplicationEngine cannot service the request", cause)
+            response.sendErrorIfNotCommitted(cause.message ?: cause.toString())
         }
     }
 

@@ -71,53 +71,54 @@ public class TomcatApplicationEngine(
 
             environment.connectors.forEach { ktorConnector ->
                 addConnector(
-                    Connector().apply {
+                    Connector().apply connector@{
                         port = ktorConnector.port
 
-                        if (ktorConnector is EngineSSLConnectorConfig) {
-                            secure = true
-                            scheme = "https"
-
-                            if (ktorConnector.keyStorePath == null) {
-                                throw IllegalArgumentException(
-                                    "Tomcat requires keyStorePath. Make sure you're setting " +
-                                        "the property in the EngineSSLConnectorConfig class."
-                                )
-                            }
-
-                            if (ktorConnector.trustStore != null && ktorConnector.trustStorePath == null) {
-                                throw IllegalArgumentException(
-                                    "Tomcat requires trustStorePath for client certificate authentication." +
-                                        "Make sure you're setting the property in the EngineSSLConnectorConfig class."
-                                )
-                            }
-                            if (ktorConnector.trustStorePath != null) {
-                                setProperty("clientAuth", "true")
-                                setProperty("truststoreFile", ktorConnector.trustStorePath!!.absolutePath)
-                            } else {
-                                setProperty("clientAuth", "false")
-                            }
-
-                            setProperty("keyAlias", ktorConnector.keyAlias)
-                            setProperty("keystorePass", String(ktorConnector.keyStorePassword()))
-                            setProperty("keyPass", String(ktorConnector.privateKeyPassword()))
-                            setProperty("keystoreFile", ktorConnector.keyStorePath!!.absolutePath)
-                            setProperty("sslProtocol", "TLS")
-                            setProperty("SSLEnabled", "true")
-
-                            ktorConnector.enabledProtocols?.let {
-                                setProperty("sslEnabledProtocols", it.joinToString())
-                            }
-
-                            val sslImpl = chooseSSLImplementation()
-
-                            setProperty("sslImplementationName", sslImpl.name)
-
-                            if (sslImpl.simpleName == "OpenSSLImplementation") {
-                                addUpgradeProtocol(Http2Protocol())
-                            }
-                        } else {
+                        if (ktorConnector !is EngineSSLConnectorConfig) {
                             scheme = "http"
+                            return@connector
+                        }
+
+                        secure = true
+                        scheme = "https"
+
+                        if (ktorConnector.keyStorePath == null) {
+                            throw IllegalArgumentException(
+                                "Tomcat requires keyStorePath. Make sure you're setting " +
+                                    "the property in the EngineSSLConnectorConfig class."
+                            )
+                        }
+
+                        if (ktorConnector.trustStore != null && ktorConnector.trustStorePath == null) {
+                            throw IllegalArgumentException(
+                                "Tomcat requires trustStorePath for client certificate authentication." +
+                                    "Make sure you're setting the property in the EngineSSLConnectorConfig class."
+                            )
+                        }
+                        if (ktorConnector.trustStorePath != null) {
+                            setProperty("clientAuth", "true")
+                            setProperty("truststoreFile", ktorConnector.trustStorePath!!.absolutePath)
+                        } else {
+                            setProperty("clientAuth", "false")
+                        }
+
+                        setProperty("keyAlias", ktorConnector.keyAlias)
+                        setProperty("keystorePass", String(ktorConnector.keyStorePassword()))
+                        setProperty("keyPass", String(ktorConnector.privateKeyPassword()))
+                        setProperty("keystoreFile", ktorConnector.keyStorePath!!.absolutePath)
+                        setProperty("sslProtocol", "TLS")
+                        setProperty("SSLEnabled", "true")
+
+                        ktorConnector.enabledProtocols?.let {
+                            setProperty("sslEnabledProtocols", it.joinToString())
+                        }
+
+                        val sslImpl = chooseSSLImplementation()
+
+                        setProperty("sslImplementationName", sslImpl.name)
+
+                        if (sslImpl.simpleName == "OpenSSLImplementation") {
+                            addUpgradeProtocol(Http2Protocol())
                         }
                     }
                 )
@@ -203,7 +204,7 @@ public class TomcatApplicationEngine(
         private fun tryLoadLibrary(libraryName: String): Boolean = try {
             System.loadLibrary(libraryName)
             true
-        } catch (t: Throwable) {
+        } catch (cause: Throwable) {
             false
         }
     }
