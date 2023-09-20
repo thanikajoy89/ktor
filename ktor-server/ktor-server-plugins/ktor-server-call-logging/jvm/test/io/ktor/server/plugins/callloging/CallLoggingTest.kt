@@ -74,21 +74,21 @@ class CallLoggingTest {
         }
 
         assertTrue(messages.size >= 3, "It should be at least 3 message logged:\n$messages")
-        assertContains(
-            messages,
-            "INFO: Application started: class io.ktor.server.application.Application(0x$hash)"
-            "No started message logged:\n$messages"
-        )
-        assertContains(
-            messages,
-            "INFO: Application stopping: class io.ktor.server.application.Application(0x$hash)"
-            "No stopping message logged:\n$messages"
-        )
-        assertContains(
-            messages,
-            "INFO: Application stopped: class io.ktor.server.application.Application(0x$hash)"
-            "No stopped message logged:\n$messages"
-        )
+        assertTrue("No started message logged:\n$messages") {
+            messages.any {
+                it.startsWith("INFO: Application started: class io.ktor.server.application.Application(0x$hash)")
+            }
+        }
+        assertTrue("No stopping message logged:\n$messages") {
+            messages.any {
+                it.startsWith("INFO: Application stopping: class io.ktor.server.application.Application(0x$hash)")
+            }
+        }
+        assertTrue("No stopped message logged:\n$messages") {
+            messages.any {
+                it.startsWith("INFO: Application stopped: class io.ktor.server.application.Application(0x$hash)")
+            }
+        }
     }
 
     @Test
