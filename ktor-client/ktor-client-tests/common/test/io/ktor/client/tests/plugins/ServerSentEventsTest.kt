@@ -13,6 +13,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.test.*
 
+val NO_SSE_ENGINES = listOf("Curl", "WinHttp")
+
 class ServerSentEventsTest : ClientLoader() {
 
     @Test
@@ -21,17 +23,17 @@ class ServerSentEventsTest : ClientLoader() {
         kotlin.test.assertFailsWith<IllegalStateException> {
             client.serverSentEventsSession()
         }.let {
-            assertContains(it.message!!, SSE.key.name)
+            kotlin.test.assertContains(it.message!!, SSE.key.name)
         }
         kotlin.test.assertFailsWith<IllegalStateException> {
             client.serverSentEvents {}
         }.let {
-            assertContains(it.message!!, SSE.key.name)
+            kotlin.test.assertContains(it.message!!, SSE.key.name)
         }
     }
 
     @Test
-    fun testSseSession() = clientTests {
+    fun testSseSession() = clientTests(NO_SSE_ENGINES) {
         config {
             install(SSE)
         }
@@ -51,7 +53,7 @@ class ServerSentEventsTest : ClientLoader() {
     }
 
     @Test
-    fun testParallelSseSessions() = clientTests {
+    fun testParallelSseSessions() = clientTests(NO_SSE_ENGINES) {
         config {
             install(SSE)
         }
@@ -106,7 +108,7 @@ class ServerSentEventsTest : ClientLoader() {
     }
 
     @Test
-    fun testExceptionSse() = clientTests {
+    fun testExceptionSse() = clientTests(NO_SSE_ENGINES) {
         config {
             install(SSE)
         }
@@ -115,13 +117,13 @@ class ServerSentEventsTest : ClientLoader() {
             kotlin.test.assertFailsWith<SSEException> {
                 client.serverSentEvents("$TEST_SERVER/sse/hello") { error("error") }
             }.let {
-                assertContains(it.message!!, "error")
+                kotlin.test.assertContains(it.message!!, "error")
             }
         }
     }
 
     @Test
-    fun testNoCommentsByDefault() = clientTests {
+    fun testNoCommentsByDefault() = clientTests(NO_SSE_ENGINES) {
         config {
             install(SSE)
         }
@@ -139,7 +141,7 @@ class ServerSentEventsTest : ClientLoader() {
     }
 
     @Test
-    fun testShowComments() = clientTests(listOf("OkHttp")) {
+    fun testShowComments() = clientTests(listOf("OkHttp") + NO_SSE_ENGINES) {
         config {
             install(SSE) {
                 showCommentEvents()
@@ -163,7 +165,7 @@ class ServerSentEventsTest : ClientLoader() {
     }
 
     @Test
-    fun testDifferentConfigs() = clientTests(listOf("OkHttp")) {
+    fun testDifferentConfigs() = clientTests(listOf("OkHttp") + NO_SSE_ENGINES) {
         config {
             install(SSE) {
                 showCommentEvents()
