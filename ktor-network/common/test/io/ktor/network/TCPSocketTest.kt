@@ -24,6 +24,7 @@ class TCPSocketTest {
 
         val clientConnection = tcp.connect("localhost", 8000)
         val serverConnection = serverConnectionPromise.await()
+        println("Connected and accepted")
 
         val clientOutput = clientConnection.openWriteChannel()
         try {

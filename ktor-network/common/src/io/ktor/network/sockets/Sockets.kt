@@ -82,7 +82,13 @@ public interface AReadable {
      * @return a job that does supply data
      */
     @Suppress("DEPRECATION")
-    public fun attachForReading(channel: ByteChannel): WriterJob
+    public fun attachForReading(channel: ByteChannel): WriterJob {
+        error("Deprecated API")
+    }
+
+    public fun read(): ByteReadChannel {
+        error("Not Implemented API")
+    }
 }
 
 /**
@@ -95,7 +101,13 @@ public interface AWritable {
      * @return a job that does transmit data from the channel
      */
     @Suppress("DEPRECATION")
-    public fun attachForWriting(channel: ByteChannel): ReaderJob
+    public fun attachForWriting(channel: ByteChannel): ReaderJob {
+        error("Deprecated API")
+    }
+
+    public fun write(): ByteWriteChannel {
+        error("Not Implemented API")
+    }
 }
 
 /**
@@ -127,7 +139,6 @@ public interface Socket : ReadWriteSocket, ABoundSocket, AConnectedSocket, Corou
  */
 public interface ServerSocket : ASocket, ABoundSocket, Acceptable<Socket>
 
-@Suppress("EXPECT_WITHOUT_ACTUAL", "KDocMissingDocumentation")
 public expect class SocketTimeoutException(message: String) : IOException
 
 /**

@@ -10,13 +10,10 @@ import io.ktor.util.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 
-internal fun testSockets(block: suspend CoroutineScope.(SelectorManager) -> Unit) {
-    if (!PlatformUtils.IS_JVM && !PlatformUtils.IS_NATIVE) return
-    testSuspend {
-        withTimeout(1000) {
-            SelectorManager().use { selector ->
-                block(selector)
-            }
+internal fun testSockets(block: suspend CoroutineScope.(SelectorManager) -> Unit) = testSuspend {
+    withTimeout(1000) {
+        SelectorManager().use { selector ->
+            block(selector)
         }
     }
 }

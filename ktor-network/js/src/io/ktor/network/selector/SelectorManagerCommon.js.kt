@@ -12,9 +12,7 @@ import kotlin.coroutines.*
  * Creates the selector manager for current platform.
  */
 @Suppress("FunctionName")
-public actual fun SelectorManager(dispatcher: CoroutineContext): SelectorManager {
-    TODO("Not yet implemented")
-}
+public actual fun SelectorManager(dispatcher: CoroutineContext): SelectorManager = SelectorManagerJs()
 
 /**
  * SelectorManager interface allows [Selectable] wait for [SelectInterest].
@@ -40,7 +38,6 @@ public actual interface SelectorManager : CoroutineScope, Closeable {
     )
 
     public actual companion object
-
 }
 
 /**
@@ -51,8 +48,6 @@ public actual enum class SelectInterest {
     READ, WRITE, ACCEPT, CONNECT;
 
     public actual companion object {
-        public actual val AllInterests: Array<SelectInterest>
-            get() = TODO("Not yet implemented")
+        public actual val AllInterests: Array<SelectInterest> = entries.toTypedArray()
     }
-
 }
