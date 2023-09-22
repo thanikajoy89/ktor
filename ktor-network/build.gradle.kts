@@ -1,18 +1,18 @@
 description = "Ktor network utilities"
 
 kotlin {
-    createCInterop("network", nixTargets()) {
-        defFile = projectDir.resolve("nix/interop/network.def")
+    createCInterop("network", posixTargets()) {
+        defFile = projectDir.resolve("posix/interop/network.def")
     }
 
     sourceSets {
-        jvmAndNixMain {
+        commonMain {
             dependencies {
                 api(project(":ktor-utils"))
             }
         }
 
-        jvmAndNixTest {
+        commonTest {
             dependencies {
                 api(project(":ktor-test-dispatcher"))
             }
