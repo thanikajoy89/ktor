@@ -11,11 +11,11 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.charsets.*
 import io.ktor.utils.io.core.*
 
-fun makeArray(size: Int): ByteArray = ByteArray(size) { it.toByte() }
+public fun makeArray(size: Int): ByteArray = ByteArray(size) { it.toByte() }
 
-fun makeString(size: Int): String = CharArray(size) { it.toChar() }.concatToString().encodeBase64().take(size)
+public fun makeString(size: Int): String = CharArray(size) { it.toChar() }.concatToString().encodeBase64().take(size)
 
-suspend fun List<PartData>.makeString(): String = buildString {
+public suspend fun List<PartData>.makeString(): String = buildString {
     val list = this@makeString
     list.forEach {
         append("${it.name!!}\n")

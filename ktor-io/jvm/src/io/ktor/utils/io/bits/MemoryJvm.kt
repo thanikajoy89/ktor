@@ -8,7 +8,6 @@ import java.nio.*
 /**
  * Memory instance with 0 size.
  */
-@AllowDifferentMembersInActual
 public actual val MEMORY_EMPTY: Memory = Memory(ByteBuffer.allocate(0).order(ByteOrder.BIG_ENDIAN))
 
 /**
