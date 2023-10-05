@@ -3,8 +3,8 @@
 */
 
 plugins {
-    kotlin("plugin.serialization") version "1.8.20"
-    id("org.gradle.kotlin.kotlin-dsl") version "4.0.14"
+    kotlin("plugin.serialization") version "1.9.0"
+    id("org.gradle.kotlin.kotlin-dsl") version "4.1.0"
 }
 
 val buildSnapshotTrain = properties["build_snapshot_train"]?.toString()?.toBoolean() == true

@@ -42,6 +42,21 @@ public class ByteReadPacket internal constructor(
         return "ByteReadPacket($remaining bytes remaining)"
     }
 
+    public fun readPacket(size: Int): ByteReadPacket {
+        require(size >= 0) { "Size shouldn't be negative: $size" }
+        require(remaining >= size) { "Not enough bytes available ($remaining) to read $size bytes" }
+
+        if (size == remaining.toInt()) {
+            val result = copy()
+            release()
+            return result
+        }
+
+        return buildPacket {
+            writePacket(this@ByteReadPacket, size)
+        }
+    }
+
     public companion object {
         public val Empty: ByteReadPacket = ByteReadPacket(ChunkBuffer.Empty, 0L, ChunkBuffer.EmptyPool)
     }
