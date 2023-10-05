@@ -555,7 +555,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
                     val byteStream = ByteChannel(autoFlush = true)
                     launch(Dispatchers.Unconfined) {
                         byteStream.writePacket(call.receiveChannel().readRemaining())
-                        byteStream.close(null)
+                        byteStream.close()
                     }
                     call.respond(object : OutgoingContent.ReadChannelContent() {
                         override val status: HttpStatusCode = HttpStatusCode.OK
@@ -583,7 +583,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
 
                 val content = ByteArray(5) { it.toByte() }
                 requestBody.writeFully(content)
-                requestBody.close(null)
+                requestBody.close()
 
                 assertContentEquals(channel.readRemaining().readBytes(), content)
             }

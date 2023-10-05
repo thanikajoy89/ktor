@@ -87,8 +87,9 @@ internal class CIOApplicationResponse(
         sendResponseMessage(contentReady = false)
 
         val upgradedJob = upgrade.upgrade(input, output, engineDispatcher, userDispatcher)
-        upgradedJob.invokeOnCompletion { output.close(); input.cancel() }
         upgradedJob.join()
+        output.close()
+        input.cancel()
     }
 
     override suspend fun respondFromBytes(bytes: ByteArray) {

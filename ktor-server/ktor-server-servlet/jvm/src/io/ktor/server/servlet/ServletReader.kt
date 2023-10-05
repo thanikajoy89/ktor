@@ -9,7 +9,7 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import java.io.*
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.*
 import javax.servlet.*
 
 @Suppress("DEPRECATION")
@@ -94,7 +94,7 @@ private class ServletReader(val input: ServletInputStream, val contentLength: In
     override fun onError(t: Throwable) {
         val wrappedException = wrapException(t)
 
-        channel.close(wrappedException)
+        channel.cancel(wrappedException)
         events.close(wrappedException)
     }
 

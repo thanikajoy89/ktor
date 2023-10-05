@@ -5,9 +5,7 @@
 package io.ktor.server.jetty.internal
 
 import io.ktor.http.content.*
-import io.ktor.server.engine.*
 import io.ktor.server.servlet.*
-import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
 import org.eclipse.jetty.io.*
@@ -53,10 +51,13 @@ public object JettyUpgradeImpl : ServletUpgrade {
                         coroutineContext + userContext
                     )
 
-                    upgradeJob.invokeOnCompletion {
-                        inputChannel.cancel()
-                        outputChannel.close()
-                        cancel()
+                    launch {
+                        try {
+                            upgradeJob.join()
+                        } finally {
+                            outputChannel.close()
+                            inputChannel.cancel()
+                        }
                     }
                 }
             } finally {

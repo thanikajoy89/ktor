@@ -19,7 +19,7 @@ import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.*
 import java.net.*
 import java.nio.*
-import java.time.ZonedDateTime
+import java.time.*
 import java.util.concurrent.atomic.*
 import kotlin.coroutines.*
 import kotlin.test.*
@@ -86,7 +86,7 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                     }
                     byteStream.writePacket(call.receiveChannel().readRemaining())
                     byteStream.writeStringUtf8("\n")
-                    byteStream.close(null)
+                    byteStream.close()
                 }
 
                 call.respond(object : OutgoingContent.ReadChannelContent() {
