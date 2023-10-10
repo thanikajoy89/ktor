@@ -5,6 +5,7 @@
 
 package io.ktor.util.logging
 
+@AllowDifferentMembersInActual
 public actual interface Logger {
     public val level: LogLevel
 

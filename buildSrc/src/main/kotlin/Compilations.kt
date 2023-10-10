@@ -12,5 +12,7 @@ fun KotlinCompilation<KotlinCommonOptions>.configureCompilation() {
         }
 
         freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+        freeCompilerArgs += "-Xexpect-actual-classes"
+        freeCompilerArgs += "-opt-in=kotlin.ExperimentalMultiplatform"
     }
 }

@@ -25,6 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 
 private val TEST_SELECTOR_MANAGER = SelectorManager()
 
+@AllowDifferentMembersInActual
 actual abstract class EngineTestBase<
     TEngine : ApplicationEngine,
     TConfiguration : ApplicationEngine.Configuration

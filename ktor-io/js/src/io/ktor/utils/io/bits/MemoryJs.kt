@@ -17,6 +17,7 @@ public actual val MEMORY_EMPTY: Memory = Memory(DataView(ArrayBuffer(0)))
  *
  * Instance of this class has no additional state except the bytes themselves.
  */
+@AllowDifferentMembersInActual
 public actual abstract class Memory internal constructor() {
     public abstract val view: DataView
 }

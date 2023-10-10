@@ -18,6 +18,7 @@ import java.util.*
  * Helper interface to test client.
  */
 @RunWith(Parameterized::class)
+@AllowDifferentMembersInActual
 actual abstract class ClientLoader actual constructor(val timeoutSeconds: Int) {
 
     @Parameterized.Parameter

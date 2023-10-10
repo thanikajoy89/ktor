@@ -6,6 +6,7 @@ package io.ktor.util.reflect
 
 import kotlin.reflect.*
 
+@AllowDifferentMembersInActual
 public actual typealias Type = KType
 
 @OptIn(ExperimentalStdlibApi::class)

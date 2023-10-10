@@ -5,6 +5,7 @@ import io.ktor.utils.io.locks.*
 import kotlinx.atomicfu.*
 
 @OptIn(InternalAPI::class)
+@AllowDifferentMembersInActual
 public actual abstract class DefaultPool<T : Any> actual constructor(
     actual final override val capacity: Int
 ) : ObjectPool<T> {

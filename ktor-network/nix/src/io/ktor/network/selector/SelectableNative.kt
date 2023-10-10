@@ -4,6 +4,7 @@
 
 package io.ktor.network.selector
 
+@AllowDifferentMembersInActual
 public actual interface Selectable {
     public val descriptor: Int
 }

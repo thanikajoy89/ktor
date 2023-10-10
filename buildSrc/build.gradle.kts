@@ -3,7 +3,7 @@
 */
 
 plugins {
-    kotlin("plugin.serialization") version "1.8.20"
+    kotlin("plugin.serialization") version "1.9.20-Beta2"
     id("org.gradle.kotlin.kotlin-dsl") version "4.0.14"
 }
 
@@ -23,9 +23,17 @@ sourceSets.main {
 
 val ktor_version = "2.3.3"
 
+var kotlin_version = "1.9.20-Beta2"
+if (buildSnapshotTrain == true) {
+    val kotlinSnapshotVersion = rootProject.properties["kotlin_snapshot_version"] as? String
+    kotlin_version = kotlinSnapshotVersion ?: throw IllegalArgumentException(
+        "'kotlin_snapshot_version' should be defined when building with snapshot compiler",
+    )
+}
+
 dependencies {
-    implementation(kotlin("gradle-plugin", "1.9.10"))
-    implementation(kotlin("serialization", "1.9.10"))
+    implementation(kotlin("gradle-plugin", kotlin_version))
+    implementation(kotlin("serialization", kotlin_version))
 
     val ktlint_version = libs.versions.ktlint.version.get()
     implementation("org.jmailen.gradle:kotlinter-gradle:$ktlint_version")

@@ -11,7 +11,7 @@ import org.junit.*
 import org.junit.rules.*
 import kotlin.time.*
 import kotlin.time.Duration.Companion.seconds
-
+@AllowDifferentMembersInActual
 actual abstract class BaseTest actual constructor() {
     actual open val timeout: Duration = 10.seconds
 

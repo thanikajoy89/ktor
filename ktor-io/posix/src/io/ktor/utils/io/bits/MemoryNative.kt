@@ -20,6 +20,7 @@ public actual val MEMORY_EMPTY: Memory = Memory(nativeHeap.allocArray(0), 0L)
  *
  * Instance of this class has no additional state except the bytes themselves.
  */
+@AllowDifferentMembersInActual
 public actual abstract class Memory internal constructor() {
     @OptIn(ExperimentalForeignApi::class)
     public abstract val pointer: CPointer<ByteVar>

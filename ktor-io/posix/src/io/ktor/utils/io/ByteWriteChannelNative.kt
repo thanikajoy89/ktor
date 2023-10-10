@@ -13,6 +13,7 @@ import kotlinx.cinterop.*
  * Operations on this channel cannot be invoked concurrently, unless explicitly specified otherwise
  * in description. Exceptions are [close] and [flush].
  */
+@AllowDifferentMembersInActual
 public actual interface ByteWriteChannel {
     /**
      * Returns number of bytes that can be written without suspension. Write operations do no suspend and return

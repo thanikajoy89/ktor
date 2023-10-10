@@ -24,6 +24,7 @@ import kotlin.native.internal.NativePtr
  */
 @OptIn(ExperimentalForeignApi::class)
 @InternalAPI
+@AllowDifferentMembersInActual
 public actual open class SynchronizedObject {
 
     protected val lock: AtomicReference<LockState> = AtomicReference(LockState(Status.UNLOCKED, 0, 0))

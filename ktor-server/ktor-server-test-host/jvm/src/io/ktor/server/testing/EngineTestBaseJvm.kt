@@ -34,6 +34,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("KDocMissingDocumentation")
+@AllowDifferentMembersInActual
 actual abstract class EngineTestBase<
     TEngine : ApplicationEngine,
     TConfiguration : ApplicationEngine.Configuration

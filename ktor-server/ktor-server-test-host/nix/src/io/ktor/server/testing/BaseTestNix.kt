@@ -13,6 +13,7 @@ import kotlin.time.*
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("FunctionName")
+@AllowDifferentMembersInActual
 actual abstract class BaseTest actual constructor() {
     actual open val timeout: Duration = 10.seconds
 
